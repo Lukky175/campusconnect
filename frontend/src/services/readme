@@ -1,0 +1,55 @@
+React Component
+      │
+      ▼
+ services/api.js
+      │
+      ├───────────────┐
+      ▼               ▼
+ eventApi         authApi
+      │               │
+      ▼               ▼
+ request.js       request.js
+      │
+      ▼
+ Flask API
+
+
+ all services share the same request.js.
+
+ So if later we need:
+- authorization headers
+- access tokens
+- refresh tokens
+- global 401 handling
+- request IDs
+- logging
+- retry logic
+- CSRF handling
+- error normalization
+we change the central request layer rather than 30 API files.
+That's exactly what we want for a production-style application.
+
+
+
+                    ┌── Event Details Page
+                    │
+                    │
+                    ├── Student Dashboard
+                    │
+                    │
+                    └── Event Sidebar
+                           │
+                           ▼
+                 registrationApi
+                           │
+                           ▼
+             POST /api/events/:eventId/register
+                           │
+                           ▼
+                  Authentication
+                           │
+                           ▼
+                  Registration Logic
+                           │
+                           ▼
+               event_registrations

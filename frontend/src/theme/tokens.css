@@ -1,0 +1,111 @@
+/*
+  CampusConnect Design Tokens
+  Warm coffee / beige visual system.
+  Components should use these tokens instead of hard-coded colors.
+*/
+
+:root {
+  /* Base */
+  --cc-bg: #f7f2eb;
+  --cc-surface: #fffdf9;
+  --cc-surface-subtle: #f1e9df;
+  --cc-surface-raised: #ffffff;
+
+  /* Typography */
+  --cc-heading: #2c211b;
+  --cc-text: #3d3028;
+  --cc-text-muted: #75675d;
+  --cc-text-soft: #a0958b;
+
+  /* Borders */
+  --cc-border: #e5dbcf;
+  --cc-border-strong: #d3c5b7;
+
+  /* Brand */
+  --cc-primary: #6f4e37;
+  --cc-primary-hover: #5c3f2c;
+  --cc-primary-soft: #eee3d7;
+  --cc-on-primary: #fffaf5;
+
+  /* Secondary accent */
+  --cc-accent: #879477;
+  --cc-accent-soft: #e8ede3;
+
+  /* Semantic */
+  --cc-success: #4f7a5b;
+  --cc-success-soft: #e7f0e8;
+
+  --cc-warning: #a87832;
+  --cc-warning-soft: #f6eddc;
+
+  --cc-danger: #a4514b;
+  --cc-danger-soft: #f5e5e3;
+
+  --cc-info: #55758a;
+  --cc-info-soft: #e6eef2;
+
+  /* Interaction */
+  --cc-focus: #9a6f4f;
+  --cc-selection: #6f4e37;
+  --cc-selection-text: #fffaf5;
+
+  /* Elevation */
+  --cc-shadow-sm: 0 1px 3px rgba(61, 48, 40, 0.06);
+  --cc-shadow-md: 0 10px 30px rgba(61, 48, 40, 0.10);
+
+  /* Shape */
+  --cc-radius-sm: 0.5rem;
+  --cc-radius-md: 0.75rem;
+  --cc-radius-lg: 1rem;
+  --cc-radius-xl: 1.25rem;
+}
+
+html.dark {
+  /* Base */
+  --cc-bg: #171310;
+  --cc-surface: #211b17;
+  --cc-surface-subtle: #2a221d;
+  --cc-surface-raised: #302721;
+
+  /* Typography */
+  --cc-heading: #f4ede6;
+  --cc-text: #e8ddd3;
+  --cc-text-muted: #b5a79b;
+  --cc-text-soft: #887b70;
+
+  /* Borders */
+  --cc-border: #382f29;
+  --cc-border-strong: #4a3e35;
+
+  /* Brand */
+  --cc-primary: #c69a72;
+  --cc-primary-hover: #d5aa82;
+  --cc-primary-soft: #35281f;
+  --cc-on-primary: #211812;
+
+  /* Secondary accent */
+  --cc-accent: #aab69a;
+  --cc-accent-soft: #293026;
+
+  /* Semantic */
+  --cc-success: #8db697;
+  --cc-success-soft: #243228;
+
+  --cc-warning: #d2a961;
+  --cc-warning-soft: #382d1e;
+
+  --cc-danger: #d48c85;
+  --cc-danger-soft: #392422;
+
+  --cc-info: #91b2c4;
+  --cc-info-soft: #253139;
+
+  /* Interaction */
+  --cc-focus: #c69a72;
+  --cc-selection: #c69a72;
+  --cc-selection-text: #211812;
+
+  /* Elevation */
+  --cc-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --cc-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.30);
+}
