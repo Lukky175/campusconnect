@@ -379,6 +379,7 @@ export default function DashboardEventsPage() {
                   <EventCard
                     key={event._id || event.slug}
                     event={event}
+                    dashboard
                   />
                 ))}
               </div>

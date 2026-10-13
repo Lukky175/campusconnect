@@ -146,6 +146,11 @@ export default function App() {
                 />
 
                 <Route
+                  path="/dashboard/events/:eventId"
+                  element={<EventDetailsPage />}
+                />
+
+                <Route
                   path="/dashboard/registrations"
                   element={<DashboardRegistrationsPage />}
                 />

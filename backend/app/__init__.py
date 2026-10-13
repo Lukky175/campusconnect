@@ -1,12 +1,15 @@
+
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from .config import Config
 from .extensions import mongo
+
 from .routes.health import health_bp
 from .routes.auth import auth_bp
 from .routes.events import events_bp
+from .routes.registrations import registrations_bp
 
 from .routes.admin_users import admin_users_bp
 from .routes.admin_roles import admin_roles_bp
@@ -25,7 +28,7 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": app.config["CORS_ORIGINS"]
+                "origins": app.config["CORS_ORIGINS"],
             }
         },
     )
@@ -46,6 +49,11 @@ def create_app():
     app.register_blueprint(
         events_bp,
         url_prefix="/api/events",
+    )
+
+    app.register_blueprint(
+        registrations_bp,
+        url_prefix="/api/registrations",
     )
 
     app.register_blueprint(
@@ -76,7 +84,5 @@ def create_app():
             "success": False,
             "message": "An internal server error occurred.",
         }, 500
-
-    
 
     return app

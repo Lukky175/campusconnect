@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+
+import { registrationApi } from "../../../services/api/registrations/registrationApi";
 
 import {
   ArrowLeft,
@@ -24,7 +26,12 @@ import { api } from "../../../services/api";
 import { useToast } from "../../../context/ToastContext";
 
 
-export default function EventPage() {
+export default function EventPage({ dashboard = false }) {
+  const PageLayout = dashboard ? Fragment : PublicLayout;
+  const eventsPath = dashboard ? "/dashboard/events" : "/events";
+  const [registering, setRegistering] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+
   const { eventId } = useParams();
 
   const navigate = useNavigate();
@@ -118,7 +125,7 @@ export default function EventPage() {
    */
   if (loading) {
     return (
-      <PublicLayout>
+      <PageLayout>
 
         <div className="container-page py-20">
 
@@ -128,7 +135,7 @@ export default function EventPage() {
 
         </div>
 
-      </PublicLayout>
+      </PageLayout>
     );
   }
 
@@ -140,7 +147,7 @@ export default function EventPage() {
    */
   if (!event) {
     return (
-      <PublicLayout>
+      <PageLayout>
 
         <div className="container-page py-20 text-center">
 
@@ -149,7 +156,7 @@ export default function EventPage() {
           </p>
 
           <Link
-            to="/events"
+            to={eventsPath}
             className="mt-4 inline-block text-sm font-medium text-[var(--cc-primary)]"
           >
             Back to events
@@ -157,7 +164,7 @@ export default function EventPage() {
 
         </div>
 
-      </PublicLayout>
+      </PageLayout>
     );
   }
 
@@ -167,41 +174,60 @@ export default function EventPage() {
    * Registration
    * ---------------------------------------------------------
    */
-  const handleRegistration = () => {
-    const authenticated =
-      Boolean(
-        localStorage.getItem(
-          "campusconnect-auth"
-        )
-      );
+  
+  const handleRegistration = async () => {
+    const token = localStorage.getItem(
+      "campusconnect-access-token"
+    );
 
-    if (!authenticated) {
-      toast.info(
-        "Please sign in before registering for an event."
-      );
-
+    if (!token) {
+      toast.info("Please sign in before registering for an event.");
       navigate("/login");
-
       return;
     }
 
-    /*
-     * Registration API will be connected later.
-     */
-    toast.info(
-      "You are signed in. Event registration will be connected next."
-    );
+    if (!event?._id && !event?.slug) {
+      toast.error("Event information is missing. Please refresh the page.");
+      return;
+    }
+
+    if (registering || alreadyRegistered) {
+      return;
+    }
+
+    try {
+      setRegistering(true);
+
+      await registrationApi.registerForEvent(
+        event.slug || event._id
+      );
+
+      setAlreadyRegistered(true);
+      toast.success("You have successfully registered for this event!");
+    } catch (error) {
+      if (error.status === 409) {
+        setAlreadyRegistered(true);
+        toast.info("You are already registered for this event.");
+      } else {
+        toast.error(
+          error.message || "Unable to register. Please try again."
+        );
+      }
+    } finally {
+      setRegistering(false);
+    }
   };
 
 
+
   return (
-    <PublicLayout>
+    <PageLayout>
 
       <section className="container-page py-12 md:py-16">
 
         {/* Back */}
         <Link
-          to="/events"
+          to={eventsPath}
           className="inline-flex items-center gap-2 text-sm text-[var(--cc-text-muted)] hover:text-[var(--cc-text)]"
         >
           <ArrowLeft className="size-4" />
@@ -378,12 +404,28 @@ export default function EventPage() {
                 account to continue with registration.
               </p>
 
+              
               <Button
                 className="mt-5 w-full"
                 onClick={handleRegistration}
+                disabled={registering || alreadyRegistered}
               >
-                Register for event
+                {registering
+                  ? "Registering..."
+                  : alreadyRegistered
+                    ? "Already registered"
+                    : "Register for event"}
               </Button>
+
+              {alreadyRegistered && (
+                <Link
+                  to="/dashboard/registrations"
+                  className="mt-3 block text-center text-sm font-medium text-[var(--cc-primary)] hover:underline"
+                >
+                  View my registrations
+                </Link>
+              )}
+
 
 
               {event.organizer && (
@@ -422,7 +464,7 @@ export default function EventPage() {
 
       </section>
 
-    </PublicLayout>
+    </PageLayout>
   );
 }
 
