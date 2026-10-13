@@ -12,6 +12,7 @@ import { registrationApi } from "./api/registrations/registrationApi";
 import { userAdminApi } from "./api/admin/userAdminApi";
 import { roleAdminApi } from "./api/admin/roleAdminApi";
 import { eventAdminApi } from "./api/admin/eventAdminApi";
+import { clubApi } from "./api/clubs/clubApi";
 
 export const api = {
   health: () =>
@@ -19,6 +20,7 @@ export const api = {
 
   ...authApi,
   ...eventApi,
+  ...clubApi,
 
   ...eventCreateApi,
   ...eventEditApi,

@@ -7,6 +7,7 @@ import {
 import {
   CalendarDays,
   ClipboardCheck,
+  Code2,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -50,6 +51,11 @@ const navItems = [
     label: "Events",
     to: "/dashboard/events",
     icon: CalendarDays,
+  },
+  {
+    label: "Tech Clubs",
+    to: "/dashboard/clubs",
+    icon: Code2,
   },
   {
     label: "My Registrations",

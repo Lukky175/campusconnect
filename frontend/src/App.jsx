@@ -9,6 +9,7 @@ import EventsPage from "./pages/public/eventspage/Eventspage";
 import EventDetailsPage from "./pages/public/eventspage/EventPage";
 import SimpleContentPage from "./pages/public/SimpleContentPage";
 import NotFoundPage from "./pages/public/NotFoundPage";
+import ClubsPage from "./pages/public/ClubsPage";
 
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -53,20 +54,7 @@ export default function App() {
 
             <Route
               path="/clubs"
-              element={
-                <SimpleContentPage
-                  eyebrow="Community"
-                  title="Tech clubs"
-                >
-                  <p>
-                    Discover technology clubs and student
-                    communities. This section is intentionally
-                    kept modular so club profiles, categories
-                    and membership flows can be added without
-                    changing the global layout.
-                  </p>
-                </SimpleContentPage>
-              }
+              element={<ClubsPage />}
             />
 
             <Route
@@ -143,6 +131,11 @@ export default function App() {
                 <Route
                   path="/dashboard/events"
                   element={<DashboardEventsPage />}
+                />
+
+                <Route
+                  path="/dashboard/clubs"
+                  element={<ClubsPage dashboard />}
                 />
 
                 <Route

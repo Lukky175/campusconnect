@@ -101,7 +101,22 @@ MONGO_DB_NAME=campus_connect
 
 Never commit `backend/.env`.
 
-## 4. Docker
+## 4. Initialize the database
+
+After configuring `backend/.env` and installing backend dependencies, initialize indexes,
+roles, and the starter technology-club catalog from the `backend` directory:
+
+```bash
+python scripts/init_db.py
+```
+
+The initialization script is safe to run again. It creates the `clubs` collection indexes
+and inserts the starter catalog only when each club slug is not already present, so existing
+club records are not overwritten. Club records with `status: "published"` appear in the
+public directory. `GET /api/clubs` returns public summaries; authenticated clients can use
+`GET /api/clubs/details` for descriptions, focus areas, and community links.
+
+## 5. Docker
 
 From the project root:
 
