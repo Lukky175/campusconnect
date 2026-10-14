@@ -8,6 +8,8 @@ const links = [
   { label: "Tech Clubs", to: "/clubs" },
   { label: "Blog", to: "/blog" },
   { label: "About", to: "/about" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Contact", to: "/contact" },
 ];
 
 export default function PublicNavbar() {

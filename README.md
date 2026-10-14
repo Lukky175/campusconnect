@@ -110,11 +110,14 @@ roles, and the starter technology-club catalog from the `backend` directory:
 python scripts/init_db.py
 ```
 
-The initialization script is safe to run again. It creates the `clubs` collection indexes
+The initialization script is safe to run again. It creates the `clubs` and `blogs` collection indexes
 and inserts the starter catalog only when each club slug is not already present, so existing
 club records are not overwritten. Club records with `status: "published"` appear in the
 public directory. `GET /api/clubs` returns public summaries; authenticated clients can use
-`GET /api/clubs/details` for descriptions, focus areas, and community links.
+`GET /api/clubs/details` for descriptions, focus areas, and community links. Blog documents
+are managed by admins in the dashboard; public `GET /api/blogs` and `GET /api/blogs/<slug>`
+only return published posts. Blog management uses `GET/POST /api/admin/blogs`,
+`PATCH/DELETE /api/admin/blogs/<id>`, and `PATCH /api/admin/blogs/order`.
 
 ## 5. Docker
 

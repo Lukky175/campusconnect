@@ -114,6 +114,24 @@ def initialize_database():
         mongo.db.clubs.create_index("slug", unique=True)
         mongo.db.clubs.create_index([("status", 1), ("display_order", 1)])
 
+        mongo.db.blogs.create_index("slug", unique=True)
+        mongo.db.blogs.create_index([("status", 1), ("display_order", 1), ("published_at", -1)])
+
+        mongo.db.contact_submissions.create_index([("status", 1), ("submitted_at", -1)])
+        mongo.db.website_settings.update_one(
+            {"_id": "public"},
+            {"$setOnInsert": {
+                "phone": "",
+                "email": "",
+                "address": "Bennett University, Greater Noida, Uttar Pradesh, India",
+                "office_hours": "",
+                "faqs": [],
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+            }},
+            upsert=True,
+        )
+
         now = datetime.now(timezone.utc)
         for display_order, club in enumerate(CLUBS, start=1):
             mongo.db.clubs.update_one(

@@ -41,6 +41,10 @@ export async function request(path, options = {}) {
       localStorage.removeItem(
         "campusconnect-auth"
       );
+
+      window.dispatchEvent(
+        new Event("campusconnect:auth-invalid")
+      );
     }
 
     const error = new Error(

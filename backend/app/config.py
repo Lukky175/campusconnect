@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from dotenv import load_dotenv
 
@@ -32,6 +33,10 @@ class Config:
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY",
         "dev-only-change-this-secret",
+    )
+
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+        seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_SECONDS", "28800"))
     )
 
     CORS_ORIGINS = [

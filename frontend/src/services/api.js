@@ -13,6 +13,10 @@ import { userAdminApi } from "./api/admin/userAdminApi";
 import { roleAdminApi } from "./api/admin/roleAdminApi";
 import { eventAdminApi } from "./api/admin/eventAdminApi";
 import { clubApi } from "./api/clubs/clubApi";
+import { blogApi } from "./api/blogs/blogApi";
+import { blogAdminApi } from "./api/admin/blogAdminApi";
+import { websiteApi } from "./api/website/websiteApi";
+import { websiteSettingsAdminApi } from "./api/admin/websiteSettingsAdminApi";
 
 export const api = {
   health: () =>
@@ -21,6 +25,10 @@ export const api = {
   ...authApi,
   ...eventApi,
   ...clubApi,
+  ...blogApi,
+  ...blogAdminApi,
+  ...websiteApi,
+  ...websiteSettingsAdminApi,
 
   ...eventCreateApi,
   ...eventEditApi,

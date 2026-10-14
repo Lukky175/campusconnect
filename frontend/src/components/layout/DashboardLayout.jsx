@@ -8,6 +8,8 @@ import {
   CalendarDays,
   ClipboardCheck,
   Code2,
+  FileText,
+  Globe2,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -102,6 +104,18 @@ const adminNavItems = [
     permission: "events.create",
   },
   {
+    label: "Blogs Management",
+    to: "/dashboard/admin/blogs",
+    icon: FileText,
+    role: "admin",
+  },
+  {
+    label: "Website Settings",
+    to: "/dashboard/admin/website-settings",
+    icon: Globe2,
+    role: "admin",
+  },
+  {
     label: "Roles & Permissions",
     to: "/dashboard/admin/roles",
     icon: ShieldCheck,
@@ -166,8 +180,8 @@ export default function DashboardLayout() {
   const visibleAdminItems =
     adminNavItems.filter(
       (item) =>
-        !item.permission ||
-        hasPermission(item.permission)
+        (!item.role || user?.role === item.role) &&
+        (!item.permission || hasPermission(item.permission))
     );
 
 

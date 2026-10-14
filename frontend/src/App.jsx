@@ -7,9 +7,13 @@ import { AuthProvider } from "./context/AuthContext";
 import HomePage from "./pages/public/homepage/Homepage";
 import EventsPage from "./pages/public/eventspage/Eventspage";
 import EventDetailsPage from "./pages/public/eventspage/EventPage";
-import SimpleContentPage from "./pages/public/SimpleContentPage";
 import NotFoundPage from "./pages/public/NotFoundPage";
 import ClubsPage from "./pages/public/ClubsPage";
+import BlogsPage from "./pages/public/BlogsPage";
+import BlogDetailPage from "./pages/public/BlogDetailPage";
+import AboutUsPage from "./pages/public/AboutUsPage";
+import ContactUsPage from "./pages/public/ContactUsPage";
+import FaqPage from "./pages/public/FaqPage";
 
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -27,6 +31,9 @@ import DashboardSettingsPage from "./pages/dashboard/DashboardSettingsPage";
 import UsersPage from "./pages/dashboard/admin/UsersPage";
 import RolePermissionsPage from "./pages/dashboard/admin/RolePermissionsPage";
 import ManageEventsPage from "./pages/dashboard/admin/ManageEventsPage";
+import BlogManagementPage from "./pages/dashboard/admin/BlogManagementPage";
+import WebsiteSettingsPage from "./pages/dashboard/admin/WebsiteSettingsPage";
+import AdminRoute from "./routes/AdminRoute";
 
 export default function App() {
   return (
@@ -59,53 +66,22 @@ export default function App() {
 
             <Route
               path="/blog"
-              element={
-                <SimpleContentPage
-                  eyebrow="Guides"
-                  title="Student technology guides"
-                >
-                  <p>
-                    Start with practical guides such as how to
-                    find hackathons, prepare for a hackathon,
-                    explore AI workshops and approach coding
-                    competitions.
-                  </p>
-                </SimpleContentPage>
-              }
+              element={<BlogsPage />}
             />
+
+            <Route path="/blog/:slug" element={<BlogDetailPage />} />
 
             <Route
               path="/about"
-              element={
-                <SimpleContentPage
-                  eyebrow="About"
-                  title="Built around student opportunities"
-                >
-                  <p>
-                    CampusConnect is designed to make university
-                    technology opportunities easier to discover,
-                    understand and act on.
-                  </p>
-                </SimpleContentPage>
-              }
+              element={<AboutUsPage />}
             />
 
             <Route
               path="/contact"
-              element={
-                <SimpleContentPage
-                  eyebrow="Contact"
-                  title="Get in touch"
-                >
-                  <p>
-                    Contact functionality can be connected to a
-                    backend contact endpoint later. Keep this
-                    page separate from global navigation and
-                    business logic.
-                  </p>
-                </SimpleContentPage>
-              }
+              element={<ContactUsPage />}
             />
+
+            <Route path="/faq" element={<FaqPage />} />
 
             {/* Authentication */}
 
@@ -172,6 +148,17 @@ export default function App() {
                   path="/dashboard/admin/events"
                   element={<ManageEventsPage />}
                 />
+
+                <Route element={<AdminRoute />}>
+                  <Route
+                    path="/dashboard/admin/blogs"
+                    element={<BlogManagementPage />}
+                  />
+                  <Route
+                    path="/dashboard/admin/website-settings"
+                    element={<WebsiteSettingsPage />}
+                  />
+                </Route>
               </Route>
             </Route>
 

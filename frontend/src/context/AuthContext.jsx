@@ -74,6 +74,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let active = true;
 
+    const handleInvalidSession = () => {
+      clearAuth();
+    };
+
+    window.addEventListener(
+      "campusconnect:auth-invalid",
+      handleInvalidSession
+    );
+
     async function restoreAuthentication() {
       try {
         const token = localStorage.getItem(
@@ -113,6 +122,10 @@ export function AuthProvider({ children }) {
 
     return () => {
       active = false;
+      window.removeEventListener(
+        "campusconnect:auth-invalid",
+        handleInvalidSession
+      );
     };
   }, [clearAuth]);
 

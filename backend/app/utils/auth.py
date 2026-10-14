@@ -120,6 +120,12 @@ def role_required(*allowed_roles):
                     "message": "Authenticated user not found.",
                 }), 401
 
+            if not user.get("is_active", True):
+                return jsonify({
+                    "success": False,
+                    "message": "Your account is inactive.",
+                }), 403
+
             if user.get("role") not in allowed:
                 return jsonify({
                     "success": False,

@@ -11,10 +11,13 @@ from .routes.auth import auth_bp
 from .routes.events import events_bp
 from .routes.registrations import registrations_bp
 from .routes.clubs import clubs_bp
+from .routes.blogs import blogs_bp
 
 from .routes.admin_users import admin_users_bp
 from .routes.admin_roles import admin_roles_bp
 from .routes.admin_events import admin_events_bp
+from .routes.admin_blogs import admin_blogs_bp
+from .routes.website import website_bp, admin_website_bp
 
 
 jwt = JWTManager()
@@ -63,6 +66,11 @@ def create_app():
     )
 
     app.register_blueprint(
+        blogs_bp,
+        url_prefix="/api/blogs",
+    )
+
+    app.register_blueprint(
         admin_users_bp,
         url_prefix="/api/admin/users",
     )
@@ -76,6 +84,14 @@ def create_app():
         admin_events_bp,
         url_prefix="/api/admin/events",
     )
+
+    app.register_blueprint(
+        admin_blogs_bp,
+        url_prefix="/api/admin/blogs",
+    )
+
+    app.register_blueprint(website_bp, url_prefix="/api/website")
+    app.register_blueprint(admin_website_bp, url_prefix="/api/admin/website-settings")
 
     @app.errorhandler(404)
     def handle_not_found(_error):
