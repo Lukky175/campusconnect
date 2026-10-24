@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowRight, BookOpen, HeartHandshake, Network } from "lucide-react";
-import { Link } from "react-router-dom";
 import PublicLayout from "../../components/layout/PublicLayout";
+import Button from "../../components/common/Button";
 
 const values = [
   {
@@ -38,13 +38,10 @@ export default function AboutUsPage() {
                 CampusConnect to help students discover one another, find
                 opportunities and make more of campus life.
               </p>
-              <a
-                href="#our-story"
-                className="mt-7 inline-flex items-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2.5 text-sm font-medium text-[var(--cc-on-primary)] transition hover:bg-[var(--cc-primary-hover)]"
-              >
+              <Button href="#our-story" className="mt-7 rounded-[var(--cc-radius-md)]">
                 Get to know us
                 <ArrowDown className="size-4" aria-hidden="true" />
-              </a>
+              </Button>
               <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-[var(--cc-text-soft)]">
                 Discover · Share · Grow together
               </p>
@@ -153,12 +150,12 @@ export default function AboutUsPage() {
               </p>
             </div>
             <div className="mt-6 flex flex-wrap gap-3 md:mt-0">
-              <Link to="/events" className="inline-flex items-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-surface)] px-4 py-2.5 text-sm font-medium text-[var(--cc-heading)] hover:bg-[var(--cc-surface-subtle)]">
+              <Button to="/events" variant="secondary" className="rounded-[var(--cc-radius-md)]">
                 Explore events <ArrowRight className="size-4" />
-              </Link>
-              <Link to="/clubs" className="inline-flex items-center gap-2 rounded-[var(--cc-radius-md)] border border-white/30 px-4 py-2.5 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-white/10">
+              </Button>
+              <Button to="/clubs" variant="secondary" className="rounded-[var(--cc-radius-md)]">
                 Browse tech clubs
-              </Link>
+              </Button>
             </div>
           </div>
         </section>

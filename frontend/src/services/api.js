@@ -17,6 +17,7 @@ import { blogApi } from "./api/blogs/blogApi";
 import { blogAdminApi } from "./api/admin/blogAdminApi";
 import { websiteApi } from "./api/website/websiteApi";
 import { websiteSettingsAdminApi } from "./api/admin/websiteSettingsAdminApi";
+import { feedApi } from "./api/feed/feedApi";
 
 export const api = {
   health: () =>
@@ -29,6 +30,7 @@ export const api = {
   ...blogAdminApi,
   ...websiteApi,
   ...websiteSettingsAdminApi,
+  ...feedApi,
 
   ...eventCreateApi,
   ...eventEditApi,

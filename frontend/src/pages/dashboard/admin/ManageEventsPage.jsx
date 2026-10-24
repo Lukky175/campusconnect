@@ -10,6 +10,7 @@ import {
 
 import { api } from "../../../services/api";
 import { useToast } from "../../../context/ToastContext";
+import Button from "../../../components/common/Button";
 
 
 const EMPTY_EVENT = {
@@ -261,14 +262,10 @@ export default function ManageEventsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={openCreate}
-          className="flex items-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2.5 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-[var(--cc-primary-hover)]"
-        >
+        <Button type="button" onClick={openCreate} className="rounded-[var(--cc-radius-md)]">
           <Plus className="size-4" />
           Create event
-        </button>
+        </Button>
       </section>
 
       <section className="overflow-hidden rounded-[var(--cc-radius-lg)] border border-[var(--cc-border)] bg-[var(--cc-surface)] shadow-[var(--cc-shadow-sm)]">
@@ -638,14 +635,11 @@ function EventForm({
               Cancel
             </button>
 
-            <button
-              type="submit"
-              className="rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-[var(--cc-primary-hover)]"
-            >
+            <Button type="submit" className="rounded-[var(--cc-radius-md)]">
               {editing
                 ? "Save changes"
                 : "Create event"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -9,6 +9,7 @@ import Button from "../../components/common/Button";
 
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
+import PublicLayout from "../../components/layout/PublicLayout";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -48,9 +49,9 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthShell
+    <PublicLayout><AuthShell
       title="Welcome back"
-      subtitle="Sign in to continue to your student dashboard."
+      subtitle="Sign in to continue to your CampusConnect account."
     >
       <form
         onSubmit={submit}
@@ -104,7 +105,7 @@ export default function LoginPage() {
           Create an account
         </Link>
       </p>
-    </AuthShell>
+    </AuthShell></PublicLayout>
   );
 }
 
@@ -114,7 +115,7 @@ function AuthShell({
   children,
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--cc-bg)] px-4 py-12">
+    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--cc-bg)] px-4 py-12">
       <div className="w-full max-w-md">
         <Link
           to="/"
@@ -140,6 +141,6 @@ function AuthShell({
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 }

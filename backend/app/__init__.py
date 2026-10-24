@@ -18,6 +18,7 @@ from .routes.admin_roles import admin_roles_bp
 from .routes.admin_events import admin_events_bp
 from .routes.admin_blogs import admin_blogs_bp
 from .routes.website import website_bp, admin_website_bp
+from .routes.feed import feed_bp
 
 
 jwt = JWTManager()
@@ -92,6 +93,7 @@ def create_app():
 
     app.register_blueprint(website_bp, url_prefix="/api/website")
     app.register_blueprint(admin_website_bp, url_prefix="/api/admin/website-settings")
+    app.register_blueprint(feed_bp, url_prefix="/api/feed")
 
     @app.errorhandler(404)
     def handle_not_found(_error):

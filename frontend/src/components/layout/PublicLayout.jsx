@@ -5,7 +5,7 @@ export default function PublicLayout({ children }) {
     <div className="min-h-screen bg-[var(--cc-bg)]">
       <PublicNavbar />
 
-      <main>
+      <main className="pt-16 sm:pt-24">
         {children}
       </main>
 

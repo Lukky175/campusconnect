@@ -9,6 +9,8 @@ import {
   ClipboardCheck,
   Code2,
   FileText,
+  MessagesSquare,
+  Flag,
   Globe2,
   LayoutDashboard,
   LogOut,
@@ -53,6 +55,11 @@ const navItems = [
     label: "Events",
     to: "/dashboard/events",
     icon: CalendarDays,
+  },
+  {
+    label: "Campus Feed",
+    to: "/dashboard/feed",
+    icon: MessagesSquare,
   },
   {
     label: "Tech Clubs",
@@ -116,6 +123,12 @@ const adminNavItems = [
     role: "admin",
   },
   {
+    label: "Feed Reports",
+    to: "/dashboard/admin/feed-reports",
+    icon: Flag,
+    role: "admin",
+  },
+  {
     label: "Roles & Permissions",
     to: "/dashboard/admin/roles",
     icon: ShieldCheck,
@@ -152,7 +165,7 @@ export default function DashboardLayout() {
   const handleLogout = () => {
     logout();
 
-    navigate("/login", {
+    navigate("/", {
       replace: true,
     });
   };

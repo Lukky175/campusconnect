@@ -1,5 +1,5 @@
 import { ArrowRight, Compass, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import Button from "../../../components/common/Button";
 
 export default function Hero() {
   return (
@@ -36,20 +36,14 @@ export default function Hero() {
 
           <div className="mt-8 flex flex-wrap gap-3">
 
-            <Link
-              to="/events"
-              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-[var(--cc-radius-sm)] bg-[var(--cc-primary)] px-5 text-sm font-medium text-[var(--cc-on-primary)] transition-colors hover:bg-[var(--cc-primary-hover)]"
-            >
+            <Button to="/events" className="min-h-11 rounded-[var(--cc-radius-sm)] px-5">
               Explore opportunities
               <ArrowRight className="size-4" />
-            </Link>
+            </Button>
 
-            <Link
-              to="/about"
-              className="focus-ring inline-flex min-h-11 items-center rounded-[var(--cc-radius-sm)] border border-[var(--cc-border-strong)] bg-[var(--cc-surface)] px-5 text-sm font-medium text-[var(--cc-text)] transition-colors hover:bg-[var(--cc-surface-subtle)]"
-            >
+            <Button to="/about" variant="secondary" className="min-h-11 rounded-[var(--cc-radius-sm)] px-5">
               Learn about CampusConnect
-            </Link>
+            </Button>
 
           </div>
 

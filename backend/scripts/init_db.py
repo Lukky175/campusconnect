@@ -87,6 +87,107 @@ CLUBS = [
             {"label": "Instagram", "url": "https://instagram.com/alanturingclub_bu"},
         ],
     },
+    {
+        "slug": "ieee",
+        "name": "IEEE Bennett Student Branch",
+        "short_name": "IEEE BU",
+        "category": "Engineering & emerging technology",
+        "summary": "A student branch focused on technology, engineering, and learning from industry and research communities.",
+        "description": "Bennett University's School of Computer Science page describes the IEEE student branch as providing exposure to current technology and opportunities to learn with industry and research communities.",
+        "focus_areas": ["Engineering", "Emerging technology", "Industry and research"],
+        "links": [
+            {"label": "Instagram", "url": "https://instagram.com/ieee_bu"},
+            {"label": "LinkedIn", "url": "https://www.linkedin.com/company/ieee-bennett-student-branch/"},
+        ],
+    },
+    {
+        "slug": "ieee-wie",
+        "name": "IEEE Women in Engineering",
+        "short_name": "IEEE WIE",
+        "category": "Women in technology & engineering",
+        "summary": "A community supporting women in engineering and science through mentorship and peer connection.",
+        "description": "Bennett University's School of Computer Science page describes IEEE-WIE as a community that supports women engineers and scientists and encourages girls to pursue STEM careers.",
+        "focus_areas": ["Women in STEM", "Mentorship", "Engineering"],
+        "links": [
+            {"label": "Instagram", "url": "https://www.instagram.com/wie.bennett/"},
+        ],
+    },
+    {
+        "slug": "technotix",
+        "name": "Technotix",
+        "short_name": "Technotix",
+        "category": "Robotics & hardware",
+        "summary": "A robotics club for students interested in building, experimenting, and exploring technology.",
+        "description": "Bennett University describes Technotix as its robotics club, with educational workshops and activities for students interested in robotics and fabrication.",
+        "focus_areas": ["Robotics", "Hardware", "Workshops"],
+        "links": [
+            {"label": "Instagram", "url": "https://www.instagram.com/technotix_bennett/"},
+            {"label": "LinkedIn", "url": "https://www.linkedin.com/company/technotix-bu/"},
+        ],
+    },
+    {
+        "slug": "solace-studio",
+        "name": "Solace Studio",
+        "short_name": "Solace",
+        "category": "Game development",
+        "summary": "A student community for aspiring game developers and people interested in creating games.",
+        "description": "Bennett University's Gaming specialization page describes Solace Studio as a supportive platform for aspiring game developers.",
+        "focus_areas": ["Game development", "Interactive media", "Creative technology"],
+        "links": [],
+    },
+    {
+        "slug": "artificial-intelligence-society",
+        "name": "Bennett Artificial Intelligence Society",
+        "short_name": "BIAS",
+        "category": "Artificial intelligence & machine learning",
+        "summary": "A student society for learners interested in machine learning, AI research, and practical projects.",
+        "description": "Bennett University's AI specialization page describes the society as supporting educational, professional, and social interaction for undergraduates interested in machine learning, with labs, reading groups, and workshops.",
+        "focus_areas": ["Artificial intelligence", "Machine learning", "Research and projects"],
+        "links": [],
+    },
+    {
+        "slug": "indian-blockchain-fraternity",
+        "name": "Indian Blockchain Fraternity",
+        "short_name": "IBF",
+        "category": "Blockchain & Web3",
+        "summary": "A student community focused on blockchain learning, awareness, and hands-on projects.",
+        "description": "Bennett University's Blockchain specialization page describes IBF as a blockchain community that works to build awareness and nurture student talent through technical learning and hands-on work.",
+        "focus_areas": ["Blockchain", "Web3", "Technical projects"],
+        "links": [
+            {"label": "Instagram", "url": "https://www.instagram.com/ibf.bu/"},
+            {"label": "LinkedIn", "url": "https://www.linkedin.com/company/indian-blockchain-fraternity"},
+        ],
+    },
+    {
+        "slug": "ciphers-club",
+        "name": "Cipher's Club",
+        "short_name": "Cipher's",
+        "category": "Cybersecurity",
+        "summary": "A community for students interested in cybersecurity and practical security challenges.",
+        "description": "Bennett University's CSE program pages describe Cipher's Club as a community for cybersecurity enthusiasts that promotes security awareness and represents Bennett in hackathons.",
+        "focus_areas": ["Cybersecurity", "Security awareness", "Hackathons"],
+        "links": [],
+    },
+    {
+        "slug": "trailblazer-devops",
+        "name": "Trailblazer (DevOps Club)",
+        "short_name": "Trailblazer",
+        "category": "DevOps & cloud engineering",
+        "summary": "A student club promoting DevOps practices, tools, collaborative learning, and project work.",
+        "description": "Bennett University's DevOps specialization page lists the Trailblazer club and describes it as encouraging DevOps culture, tools, project-based learning, and sharing student work.",
+        "focus_areas": ["DevOps", "Cloud", "Automation and deployment"],
+        "links": [],
+    },
+    {
+        "slug": "atlas-analytics",
+        "name": "Atlas Analytics",
+        "short_name": "Atlas Analytics",
+        "category": "Data science & analytics",
+        "summary": "A student community for people interested in data science, analytics, and working with data.",
+        "description": "Bennett University's Data Science specialization page lists Atlas Analytics and describes a community for students interested in data and data science.",
+        "focus_areas": ["Data science", "Analytics", "Data visualization"],
+        "links": [],
+    },
 ]
 
 
@@ -118,6 +219,19 @@ def initialize_database():
         mongo.db.blogs.create_index([("status", 1), ("display_order", 1), ("published_at", -1)])
 
         mongo.db.contact_submissions.create_index([("status", 1), ("submitted_at", -1)])
+        mongo.db.feed_posts.create_index([("created_at", -1), ("_id", -1)])
+        mongo.db.feed_posts.create_index([("author_id", 1), ("created_at", -1)])
+        mongo.db.feed_reactions.create_index([("post_id", 1), ("user_id", 1)], unique=True)
+        mongo.db.feed_reactions.create_index([("post_id", 1), ("created_at", -1)])
+        mongo.db.feed_saves.create_index([("user_id", 1), ("post_id", 1)], unique=True)
+        mongo.db.feed_blocks.create_index([("blocker_id", 1), ("blocked_user_id", 1)], unique=True)
+        mongo.db.feed_blocks.create_index([("blocker_id", 1), ("created_at", -1)])
+        mongo.db.feed_reports.create_index([("post_id", 1), ("reporter_id", 1)], unique=True)
+        mongo.db.feed_reports.create_index([("status", 1), ("created_at", -1)])
+        mongo.db.feed_comments.create_index([("post_id", 1), ("created_at", 1), ("_id", 1)])
+        mongo.db.feed_comments.create_index([("author_id", 1), ("created_at", -1)])
+        mongo.db.feed_comment_reactions.create_index([("comment_id", 1), ("user_id", 1)], unique=True)
+        mongo.db.feed_comment_reactions.create_index([("comment_id", 1), ("created_at", -1)])
         mongo.db.website_settings.update_one(
             {"_id": "public"},
             {"$setOnInsert": {

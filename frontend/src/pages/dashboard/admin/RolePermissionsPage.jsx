@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../../../services/api";
+import Button from "../../../components/common/Button";
 import { useToast } from "../../../context/ToastContext";
 
 
@@ -332,14 +333,10 @@ export default function RolePermissionsPage() {
               className="mt-2 w-full rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] bg-[var(--cc-surface)] px-3 py-2 text-sm text-[var(--cc-text)] outline-none focus:border-[var(--cc-focus)]"
             />
 
-            <button
-              type="button"
-              onClick={createRole}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-3 py-2 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-[var(--cc-primary-hover)]"
-            >
+            <Button type="button" onClick={createRole} className="mt-2 w-full rounded-[var(--cc-radius-md)]">
               <Plus className="size-4" />
               Create role
-            </button>
+            </Button>
           </div>
         </section>
 
@@ -370,14 +367,10 @@ export default function RolePermissionsPage() {
                     </button>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={savePermissions}
-                    className="flex items-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-[var(--cc-primary-hover)]"
-                  >
+                  <Button type="button" onClick={savePermissions} className="rounded-[var(--cc-radius-md)]">
                     <Save className="size-4" />
                     Save permissions
-                  </button>
+                  </Button>
                 </div>
               </div>
 

@@ -39,6 +39,7 @@
   --cc-warning-soft: #f6eddc;
 
   --cc-danger: #a4514b;
+  --cc-on-danger: #ffffff;
   --cc-danger-soft: #f5e5e3;
 
   --cc-info: #55758a;
@@ -95,6 +96,7 @@ html.dark {
   --cc-warning-soft: #382d1e;
 
   --cc-danger: #d48c85;
+  --cc-on-danger: #211812;
   --cc-danger-soft: #392422;
 
   --cc-info: #91b2c4;

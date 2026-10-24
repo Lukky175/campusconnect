@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { registrationApi } from "../../services/api/registrations/registrationApi";
+import Button from "../../components/common/Button";
 
 const getPayload = (response) => response?.data ?? response ?? {};
 
@@ -77,8 +78,6 @@ const inputClasses =
 const secondaryButtonClasses =
   "inline-flex items-center justify-center gap-2 rounded-[var(--cc-radius-md)] border border-[var(--cc-border)] bg-[var(--cc-surface)] px-4 py-2.5 text-sm font-medium text-[var(--cc-text)] transition hover:bg-[var(--cc-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cc-focus)] disabled:cursor-not-allowed disabled:opacity-50";
 
-const primaryButtonClasses =
-  "inline-flex items-center justify-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--cc-on-primary)] transition hover:bg-[var(--cc-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cc-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--cc-bg)]";
 
 export default function DashboardRegistrationsPage() {
   const [registrations, setRegistrations] = useState([]);
@@ -221,10 +220,10 @@ export default function DashboardRegistrationsPage() {
           </p>
         </div>
 
-        <Link to="/dashboard/events" className={primaryButtonClasses}>
+        <Button to="/dashboard/events" className="rounded-[var(--cc-radius-md)] font-semibold">
           <Ticket size={17} />
           Browse events
-        </Link>
+        </Button>
       </header>
 
       {/* Registration metrics */}
@@ -358,12 +357,9 @@ export default function DashboardRegistrationsPage() {
           </p>
 
           {registrations.length === 0 && (
-            <Link
-              to="/dashboard/events"
-              className={`${primaryButtonClasses} mt-5`}
-            >
+            <Button to="/dashboard/events" className="mt-5 rounded-[var(--cc-radius-md)]">
               Explore events
-            </Link>
+            </Button>
           )}
         </div>
       ) : (

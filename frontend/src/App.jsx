@@ -33,6 +33,9 @@ import RolePermissionsPage from "./pages/dashboard/admin/RolePermissionsPage";
 import ManageEventsPage from "./pages/dashboard/admin/ManageEventsPage";
 import BlogManagementPage from "./pages/dashboard/admin/BlogManagementPage";
 import WebsiteSettingsPage from "./pages/dashboard/admin/WebsiteSettingsPage";
+import FeedPage from "./pages/dashboard/FeedPage";
+import FeedReportsPage from "./pages/dashboard/admin/FeedReportsPage";
+import FeedUserProfilePage from "./pages/dashboard/admin/FeedUserProfilePage";
 import AdminRoute from "./routes/AdminRoute";
 
 export default function App() {
@@ -110,6 +113,11 @@ export default function App() {
                 />
 
                 <Route
+                  path="/dashboard/feed"
+                  element={<FeedPage />}
+                />
+
+                <Route
                   path="/dashboard/clubs"
                   element={<ClubsPage dashboard />}
                 />
@@ -157,6 +165,14 @@ export default function App() {
                   <Route
                     path="/dashboard/admin/website-settings"
                     element={<WebsiteSettingsPage />}
+                  />
+                  <Route
+                    path="/dashboard/admin/feed-reports"
+                    element={<FeedReportsPage />}
+                  />
+                  <Route
+                    path="/dashboard/admin/users/:userId/profile"
+                    element={<FeedUserProfilePage />}
                   />
                 </Route>
               </Route>

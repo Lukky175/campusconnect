@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, FileText, Pencil, Plus, Trash2, X } from "lucide-react";
 import { api } from "../../../services/api";
 import { useToast } from "../../../context/ToastContext";
+import Button from "../../../components/common/Button";
 
 const EMPTY_FORM = {
   title: "",
@@ -181,9 +182,9 @@ export default function BlogManagementPage() {
             Create and manage public blog posts. New posts are saved as drafts and edits autosave.
           </p>
         </div>
-        <button type="button" disabled={creating} onClick={createDraft} className="inline-flex items-center gap-2 rounded-[var(--cc-radius-md)] bg-[var(--cc-primary)] px-4 py-2.5 text-sm font-medium text-[var(--cc-on-primary)] hover:bg-[var(--cc-primary-hover)] disabled:opacity-60">
+        <Button type="button" disabled={creating} onClick={createDraft} className="rounded-[var(--cc-radius-md)]">
           <Plus className="size-4" /> {creating ? "Creating draft…" : "Create blog"}
-        </button>
+        </Button>
       </section>
 
       <section className="overflow-hidden rounded-[var(--cc-radius-lg)] border border-[var(--cc-border)] bg-[var(--cc-surface)] shadow-[var(--cc-shadow-sm)]">

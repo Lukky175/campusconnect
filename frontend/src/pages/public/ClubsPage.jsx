@@ -64,7 +64,7 @@ export default function ClubsPage({ dashboard = false }) {
                   Tech clubs
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--cc-text-muted)] sm:text-base">
-                  Explore the computing chapters and student communities at Bennett University, from competitive programming to developer technologies.
+                  Explore technology-focused chapters and student communities at Bennett, spanning programming, AI and data, cybersecurity, engineering, robotics, DevOps, blockchain, and game development.
                 </p>
               </div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--cc-border)] bg-[var(--cc-surface)] px-3 py-2 text-sm text-[var(--cc-text-muted)]">

@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Button from "../../../components/common/Button";
 
 export default function HomeCTA() {
   return (
@@ -26,13 +26,10 @@ export default function HomeCTA() {
 
           </div>
 
-          <Link
-            to="/register"
-            className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--cc-radius-sm)] bg-[var(--cc-surface)] px-5 py-3 text-sm font-medium text-[var(--cc-heading)] transition-colors hover:bg-[var(--cc-surface-subtle)]"
-          >
+          <Button to="/register" variant="secondary" className="shrink-0 rounded-[var(--cc-radius-sm)] px-5 py-3">
             Create account
             <ArrowRight className="size-4" />
-          </Link>
+          </Button>
 
         </div>
 
