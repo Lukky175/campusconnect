@@ -1,4 +1,5 @@
 from flask_jwt_extended import create_access_token
+from pymongo.errors import DuplicateKeyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import mongo
@@ -11,10 +12,12 @@ from app.models.user_model import (
 def register_user(
     name,
     email,
+    username,
     password,
     college=None,
 ):
     normalized_email = email.strip().lower()
+    normalized_username = username.strip().lstrip("@").lower()
 
     existing_user = mongo.db.users.find_one(
         {"email": normalized_email}
@@ -25,17 +28,26 @@ def register_user(
             "An account with this email already exists."
         )
 
+    if mongo.db.users.find_one({"username": normalized_username}, {"_id": 1}):
+        raise ValueError("That username is already taken. Choose another one.")
+
     password_hash = generate_password_hash(password)
 
     user = build_user_document(
         name=name,
         email=normalized_email,
+        username=username,
         password_hash=password_hash,
         role=PUBLIC_REGISTRATION_ROLE,
         college=college,
     )
 
-    result = mongo.db.users.insert_one(user)
+    try:
+        result = mongo.db.users.insert_one(user)
+    except DuplicateKeyError as error:
+        if mongo.db.users.find_one({"username": normalized_username}, {"_id": 1}):
+            raise ValueError("That username is already taken. Choose another one.") from error
+        raise ValueError("An account with this email already exists.") from error
 
     user["_id"] = result.inserted_id
 
@@ -46,7 +58,7 @@ def authenticate_user(email, password):
     normalized_email = email.strip().lower()
 
     user = mongo.db.users.find_one(
-        {"email": normalized_email}
+        {"$or": [{"email": normalized_email}, {"username": normalized_email}]}
     )
 
     if not user:
@@ -98,6 +110,7 @@ def serialize_user(user):
         "id": str(user["_id"]),
         "name": user.get("name"),
         "email": user.get("email"),
+        "username": user.get("username", ""),
         "role": user.get("role"),
         "college": user.get("college"),
         "is_active": user.get("is_active", True),

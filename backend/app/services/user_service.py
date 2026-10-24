@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import re
 
 from pymongo.errors import DuplicateKeyError
 from werkzeug.security import (
@@ -17,6 +18,9 @@ def create_user(data):
 
     email = data["email"].strip().lower()
 
+    if len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        raise ValueError("Enter a valid email address.")
+
     existing = users.find_one({
         "email": email,
     })
@@ -26,11 +30,18 @@ def create_user(data):
             "An account with this email already exists."
         )
 
+    username = normalize_username(data.get("username", ""))
+    if not valid_username(username):
+        raise ValueError("Username must be 3–24 characters and use only letters, numbers, and underscores.")
+    if users.find_one({"username": username}, {"_id": 1}):
+        raise ValueError("That username is already taken. Choose another one.")
+
     now = datetime.now(timezone.utc)
 
     document = {
         "name": data["name"].strip(),
         "email": email,
+        "username": username,
         "password_hash": generate_password_hash(
             data["password"]
         ),
@@ -54,9 +65,9 @@ def create_user(data):
         result = users.insert_one(document)
 
     except DuplicateKeyError:
-        raise ValueError(
-            "An account with this email already exists."
-        )
+        if users.find_one({"username": username}, {"_id": 1}):
+            raise ValueError("That username is already taken. Choose another one.")
+        raise ValueError("An account with this email already exists.")
 
     document["_id"] = result.inserted_id
 
@@ -67,9 +78,8 @@ def create_user(data):
 
 
 def authenticate_user(email, password):
-    user = mongo.db.users.find_one({
-        "email": email.strip().lower()
-    })
+    identifier = email.strip().lower()
+    user = mongo.db.users.find_one({"$or": [{"email": identifier}, {"username": identifier}]})
 
     if not user:
         return None
@@ -87,3 +97,11 @@ def authenticate_user(email, password):
     user.pop("password_hash", None)
 
     return user
+
+
+def normalize_username(value):
+    return str(value or "").strip().lstrip("@").lower()
+
+
+def valid_username(value):
+    return bool(re.fullmatch(r"[a-z0-9][a-z0-9_]{2,29}", value))

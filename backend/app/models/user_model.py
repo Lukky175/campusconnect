@@ -16,6 +16,7 @@ PUBLIC_REGISTRATION_ROLE = "student"
 def build_user_document(
     name,
     email,
+    username,
     password_hash,
     role=PUBLIC_REGISTRATION_ROLE,
     college=None,
@@ -25,6 +26,7 @@ def build_user_document(
     return {
         "name": name.strip(),
         "email": email.strip().lower(),
+        "username": username.strip().lower(),
         "password_hash": password_hash,
         "role": role,
         "college": college.strip() if college else None,

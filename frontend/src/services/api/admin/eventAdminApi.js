@@ -30,4 +30,24 @@ export const eventAdminApi = {
         method: "DELETE",
       }
     ),
+
+  getEventRegistrations: (eventId) =>
+    request(`/admin/events/${encodeURIComponent(eventId)}/registrations`),
+
+  addEventRegistration: (eventId, email) =>
+    request(`/admin/events/${encodeURIComponent(eventId)}/registrations`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  updateEventRegistration: (eventId, registrationId, status) =>
+    request(`/admin/events/${encodeURIComponent(eventId)}/registrations/${encodeURIComponent(registrationId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+
+  removeEventRegistration: (eventId, registrationId) =>
+    request(`/admin/events/${encodeURIComponent(eventId)}/registrations/${encodeURIComponent(registrationId)}`, {
+      method: "DELETE",
+    }),
 };

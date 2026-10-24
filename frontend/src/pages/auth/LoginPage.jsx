@@ -13,7 +13,7 @@ import PublicLayout from "../../components/layout/PublicLayout";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
 
@@ -30,13 +30,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(form);
+      const data = await login(form);
 
       toast.success("Welcome back.");
 
       // After every successful login,
       // take the user directly to the dashboard.
-      navigate("/dashboard", {
+      navigate(data.user?.password_reset_required ? "/dashboard/settings?password-reset=required" : "/dashboard", {
         replace: true,
       });
     } catch (error) {
@@ -49,7 +49,7 @@ export default function LoginPage() {
   };
 
   return (
-    <PublicLayout><AuthShell
+    <PublicLayout mainClassName="pt-0" hideFooter><AuthShell
       title="Welcome back"
       subtitle="Sign in to continue to your CampusConnect account."
     >
@@ -58,16 +58,16 @@ export default function LoginPage() {
         className="space-y-4"
       >
         <Input
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
+          label="Username or email"
+          name="identifier"
+          type="text"
+          autoComplete="username"
           required
-          value={form.email}
+          value={form.identifier}
           onChange={(e) =>
             setForm({
               ...form,
-              email: e.target.value,
+              identifier: e.target.value,
             })
           }
         />
@@ -115,7 +115,7 @@ function AuthShell({
   children,
 }) {
   return (
-    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--cc-bg)] px-4 py-12">
+    <section className="flex h-[100svh] min-h-0 items-center justify-center overflow-hidden bg-[var(--cc-bg)] px-4 pb-8 pt-20">
       <div className="w-full max-w-md">
         <Link
           to="/"

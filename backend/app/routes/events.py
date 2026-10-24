@@ -16,6 +16,7 @@ from ..utils.auth import (
     permission_required,
 )
 from ..utils.response import failure, success
+from ..services.notification_service import create_notification
 
 
 events_bp = Blueprint("events", __name__)
@@ -124,6 +125,13 @@ def register_for_event(event_id):
         return failure("Unable to complete registration right now.", 500)
 
     registration["_id"] = result.inserted_id
+    create_notification(
+        "Event registration confirmed",
+        f"Your registration for {event_document.get('title', 'the event')} is confirmed.",
+        "registration",
+        "/dashboard/registrations",
+        user_id=user["_id"],
+    )
 
     return success(
         {

@@ -110,7 +110,8 @@ roles, and the starter technology-club catalog from the `backend` directory:
 python scripts/init_db.py
 ```
 
-The initialization script is safe to run again. It creates the `clubs` and `blogs` collection indexes
+The initialization script is safe to run again. It backfills unique usernames for existing users,
+creates the unique username index plus notification and username-request indexes, and seeds required role permissions. Run it once during deployment before enabling the updated signup flow. It creates the `clubs` and `blogs` collection indexes
 and inserts the starter catalog only when each club slug is not already present, so existing
 club records are not overwritten. Club records with `status: "published"` appear in the
 public directory. `GET /api/clubs` returns public summaries; authenticated clients can use

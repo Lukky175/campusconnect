@@ -9,7 +9,9 @@ from ..utils.auth import (
     get_current_user,
     permission_required,
 )
+from ..utils.permissions import user_has_permission
 from ..utils.response import failure, success
+from ..services.notification_service import create_notification
 
 
 registrations_bp = Blueprint(
@@ -42,12 +44,16 @@ def serialize_registration(registration, event):
 
 
 @registrations_bp.get("/me")
-@permission_required("registrations.view_own")
 def get_my_registrations():
     user = get_current_user()
 
     if not user:
         return failure("Authenticated user not found.", 401)
+
+    # Admins can view their own overview without granting access to
+    # other users' registrations (the separate admin roster is guarded).
+    if not user_has_permission(user, "registrations.view_own") and not user_has_permission(user, "registrations.view"):
+        return failure("You do not have permission to view your registrations.", 403)
 
     try:
         records = list(
@@ -137,6 +143,15 @@ def cancel_registration(registration_id):
                 "updated_at": now,
             }
         },
+    )
+
+    event = mongo.db.events.find_one({"_id": registration.get("event_id")}, {"title": 1})
+    create_notification(
+        "Registration cancelled",
+        f"Your registration for {(event or {}).get('title', 'the event')} was cancelled successfully.",
+        "registration",
+        "/dashboard/registrations",
+        user_id=user["_id"],
     )
 
     return success(

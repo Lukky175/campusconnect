@@ -22,7 +22,7 @@ export default function PublicNavbar() {
   return (
     <header className="fixed inset-x-0 top-3 z-50 px-2 sm:top-5 sm:px-4">
       <div className="container-page relative">
-        <div className="flex h-12 items-center justify-between rounded-full border border-[var(--cc-border)] bg-[var(--cc-surface)]/90 px-4 shadow-[var(--cc-shadow-md)] backdrop-blur-xl sm:h-16 sm:px-6">
+        <div className="flex h-12 items-center justify-between rounded-full border border-[var(--cc-border)]/70 bg-[var(--cc-surface)]/55 px-4 shadow-[var(--cc-shadow-md)] backdrop-blur-2xl sm:h-16 sm:px-6">
           <Link to="/" onClick={closeMenu} aria-label="CampusConnect home" className="shrink-0 text-base font-semibold tracking-tight text-[var(--cc-heading)] sm:text-lg">
             Campus<span className="text-[var(--cc-primary)]">Connect</span>
           </Link>

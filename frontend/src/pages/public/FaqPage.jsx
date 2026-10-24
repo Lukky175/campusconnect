@@ -26,11 +26,11 @@ export default function FaqPage() {
     return next;
   });
 
-  return <PublicLayout>
-    <section className="relative isolate flex min-h-64 items-center overflow-hidden bg-slate-900 sm:min-h-80">
+  return <PublicLayout mainClassName="pt-0">
+    <section className="relative isolate flex min-h-[62svh] items-end overflow-hidden bg-slate-900 pt-28 sm:min-h-[68svh] sm:pt-36">
       <img src="/Bennett_2.webp" alt="Bennett University campus" className="absolute inset-0 -z-20 size-full object-cover object-center" />
       <div className="absolute inset-0 -z-10 bg-black/55" />
-      <div className="container-page py-16 sm:py-20">
+      <div className="container-page pb-12 pt-8 sm:pb-16 sm:pt-10">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/75">CampusConnect</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-6xl">Frequently Asked Questions</h1>
         <p className="mt-4 max-w-xl text-base leading-7 text-white/80">A few helpful answers about finding your way around CampusConnect.</p>

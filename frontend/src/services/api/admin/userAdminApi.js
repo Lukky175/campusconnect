@@ -29,4 +29,10 @@ export const userAdminApi = {
         }),
       }
     ),
+
+  requirePasswordReset: (userId) =>
+    request(`/admin/users/${encodeURIComponent(userId)}/reset-password`, { method: "POST" }),
+  updateUsername: (userId, username) => request(`/admin/users/${encodeURIComponent(userId)}/username`, { method: "PATCH", body: JSON.stringify({ username }) }),
+  getUsernameChangeRequests: () => request("/admin/users/username-requests"),
+  reviewUsernameChangeRequest: (requestId, status) => request(`/admin/users/username-requests/${encodeURIComponent(requestId)}`, { method: "PATCH", body: JSON.stringify({ status }) }),
 };

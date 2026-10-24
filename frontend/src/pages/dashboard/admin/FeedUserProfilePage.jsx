@@ -39,6 +39,7 @@ export default function FeedUserProfilePage() {
         <span className="-mt-9 flex size-[4.5rem] items-center justify-center rounded-full border-4 border-[var(--cc-surface)] bg-[var(--cc-primary)] text-2xl font-semibold text-[var(--cc-on-primary)]">{profile.name?.trim()?.[0]?.toUpperCase() || "U"}</span>
         <p className="mt-4 text-xs font-medium uppercase tracking-wider text-[var(--cc-primary)]">Administrator view</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--cc-heading)]">{profile.name || "Campus member"}</h1>
+        {profile.username && <p className="mt-1 text-sm font-medium text-[var(--cc-primary)]">@{profile.username}</p>}
         <p className="mt-1 text-sm text-[var(--cc-text-muted)]">This profile is visible only to administrators.</p>
         <dl className="mt-7 grid gap-3 sm:grid-cols-2">{details.map(({ label, value, icon: Icon }) => <div key={label} className="flex gap-3 rounded-lg border border-[var(--cc-border)] bg-[var(--cc-bg)] p-4"><Icon className="mt-0.5 size-4 shrink-0 text-[var(--cc-primary)]" /><div><dt className="text-xs font-medium text-[var(--cc-text-soft)]">{label}</dt><dd className="mt-1 break-words text-sm font-medium capitalize text-[var(--cc-text)]">{value}</dd></div></div>)}</dl>
       </div>

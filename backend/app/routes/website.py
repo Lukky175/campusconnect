@@ -4,7 +4,7 @@ from uuid import uuid4
 from flask import Blueprint, request
 
 from ..extensions import mongo
-from ..utils.auth import role_required
+from ..utils.auth import permission_required
 from ..utils.response import failure, success
 
 
@@ -79,7 +79,7 @@ def submit_contact_message():
 
 
 @admin_website_bp.get("")
-@role_required("admin")
+@permission_required("website.manage")
 def get_admin_settings():
     try:
         return success(serialize_settings(get_settings()), "Website settings fetched.")
@@ -88,7 +88,7 @@ def get_admin_settings():
 
 
 @admin_website_bp.put("")
-@role_required("admin")
+@permission_required("website.manage")
 def update_admin_settings():
     data = request.get_json(silent=True) or {}
     fields = ("phone", "email", "address", "office_hours")

@@ -37,6 +37,8 @@ import FeedPage from "./pages/dashboard/FeedPage";
 import FeedReportsPage from "./pages/dashboard/admin/FeedReportsPage";
 import FeedUserProfilePage from "./pages/dashboard/admin/FeedUserProfilePage";
 import AdminRoute from "./routes/AdminRoute";
+import ClubsManagementPage from "./pages/dashboard/admin/ClubsManagementPage";
+import CommunityProfilePage from "./pages/dashboard/CommunityProfilePage";
 
 export default function App() {
   return (
@@ -137,6 +139,8 @@ export default function App() {
                   element={<ProfilePage />}
                 />
 
+                <Route path="/dashboard/users/:userId/profile" element={<CommunityProfilePage />} />
+
                 <Route
                   path="/dashboard/settings"
                   element={<DashboardSettingsPage />}
@@ -157,7 +161,7 @@ export default function App() {
                   element={<ManageEventsPage />}
                 />
 
-                <Route element={<AdminRoute />}>
+                <Route path="/dashboard/admin/clubs" element={<ClubsManagementPage />} />
                   <Route
                     path="/dashboard/admin/blogs"
                     element={<BlogManagementPage />}
@@ -170,6 +174,7 @@ export default function App() {
                     path="/dashboard/admin/feed-reports"
                     element={<FeedReportsPage />}
                   />
+                <Route element={<AdminRoute />}>
                   <Route
                     path="/dashboard/admin/users/:userId/profile"
                     element={<FeedUserProfilePage />}

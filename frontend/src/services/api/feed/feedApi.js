@@ -31,7 +31,11 @@ export const feedApi = {
   toggleFeedCommentReaction: (commentId) => request(`/feed/comments/${encodeURIComponent(commentId)}/reactions`, {
     method: "POST",
   }),
+  deleteOwnFeedComment: (commentId) => request(`/feed/comments/${encodeURIComponent(commentId)}`, { method: "DELETE" }),
   deleteFeedPost: (postId) => request(`/feed/admin/posts/${encodeURIComponent(postId)}`, {
+    method: "DELETE",
+  }),
+  deleteOwnFeedPost: (postId) => request(`/feed/${encodeURIComponent(postId)}`, {
     method: "DELETE",
   }),
   getFeedReports: () => request("/feed/admin/reports"),
@@ -41,8 +45,8 @@ export const feedApi = {
   }),
   getFeedUserProfile: (userId) => request(`/feed/admin/users/${encodeURIComponent(userId)}`),
   getFeedComments: (postId) => request(`/feed/${encodeURIComponent(postId)}/comments`),
-  createFeedComment: (postId, body) => request(`/feed/${encodeURIComponent(postId)}/comments`, {
+  createFeedComment: (postId, body, reply = {}) => request(`/feed/${encodeURIComponent(postId)}/comments`, {
     method: "POST",
-    body: JSON.stringify({ body }),
+    body: JSON.stringify({ body, ...reply }),
   }),
 };

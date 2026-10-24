@@ -16,4 +16,11 @@ export const authApi = {
 
   me: () =>
     request("/auth/me"),
+
+  checkUsername: (username) => request(`/auth/check-username?username=${encodeURIComponent(username)}`),
+
+  changePassword: (payload) => request("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
 };

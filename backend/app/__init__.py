@@ -19,6 +19,8 @@ from .routes.admin_events import admin_events_bp
 from .routes.admin_blogs import admin_blogs_bp
 from .routes.website import website_bp, admin_website_bp
 from .routes.feed import feed_bp
+from .routes.profile import profile_bp
+from .routes.notifications import notifications_bp
 
 
 jwt = JWTManager()
@@ -94,6 +96,8 @@ def create_app():
     app.register_blueprint(website_bp, url_prefix="/api/website")
     app.register_blueprint(admin_website_bp, url_prefix="/api/admin/website-settings")
     app.register_blueprint(feed_bp, url_prefix="/api/feed")
+    app.register_blueprint(profile_bp, url_prefix="/api/profile")
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
 
     @app.errorhandler(404)
     def handle_not_found(_error):

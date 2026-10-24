@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
+import re
 
 from app import create_app
 from app.extensions import mongo
 from app.utils.permissions import initialize_roles
-
 
 CLUBS = [
     {
@@ -195,7 +195,14 @@ def initialize_database():
     app = create_app()
 
     with app.app_context():
+        for user in mongo.db.users.find({"username": {"$exists": False}}, {"_id": 1, "name": 1, "email": 1}):
+            source = str(user.get("name") or user.get("email", "user").split("@")[0]).lower()
+            base = re.sub(r"[^a-z0-9]+", "_", source).strip("_") or "member"
+            username = f"{base[:17]}_{str(user['_id'])[-12:]}"
+            mongo.db.users.update_one({"_id": user["_id"], "username": {"$exists": False}}, {"$set": {"username": username}})
+
         mongo.db.users.create_index("email", unique=True)
+        mongo.db.users.create_index("username", unique=True)
 
         mongo.db.events.create_index("slug", unique=True)
 
@@ -229,9 +236,18 @@ def initialize_database():
         mongo.db.feed_reports.create_index([("post_id", 1), ("reporter_id", 1)], unique=True)
         mongo.db.feed_reports.create_index([("status", 1), ("created_at", -1)])
         mongo.db.feed_comments.create_index([("post_id", 1), ("created_at", 1), ("_id", 1)])
+        mongo.db.feed_comments.create_index([("post_id", 1), ("parent_comment_id", 1), ("created_at", 1)])
         mongo.db.feed_comments.create_index([("author_id", 1), ("created_at", -1)])
         mongo.db.feed_comment_reactions.create_index([("comment_id", 1), ("user_id", 1)], unique=True)
         mongo.db.feed_comment_reactions.create_index([("comment_id", 1), ("created_at", -1)])
+        mongo.db.notifications.create_index([("recipient_user_id", 1), ("created_at", -1)])
+        mongo.db.notifications.create_index([("recipient_roles", 1), ("created_at", -1)])
+        mongo.db.notifications.create_index([("read_by", 1), ("created_at", -1)])
+        # MongoDB TTL monitor removes expired in-app notifications asynchronously.
+        mongo.db.notifications.create_index("created_at", expireAfterSeconds=864000, name="notifications_expire_after_10_days")
+        mongo.db.username_change_requests.create_index([("user_id", 1), ("status", 1), ("created_at", -1)])
+        mongo.db.username_change_requests.create_index([("user_id", 1)], unique=True, partialFilterExpression={"status": "pending"})
+        mongo.db.username_change_requests.create_index([("status", 1), ("created_at", -1)])
         mongo.db.website_settings.update_one(
             {"_id": "public"},
             {"$setOnInsert": {

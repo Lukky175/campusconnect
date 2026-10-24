@@ -5,12 +5,14 @@ import {
   Pencil,
   Plus,
   Trash2,
+  UsersRound,
   X,
 } from "lucide-react";
 
 import { api } from "../../../services/api";
 import { useToast } from "../../../context/ToastContext";
 import Button from "../../../components/common/Button";
+import { useAuth } from "../../../context/AuthContext";
 
 
 const EMPTY_EVENT = {
@@ -35,6 +37,13 @@ const EMPTY_EVENT = {
 
 export default function ManageEventsPage() {
   const toast = useToast();
+  const { hasPermission, user } = useAuth();
+  const canManageRoster = hasPermission("registrations.view") && hasPermission("registrations.manage");
+  const canCreateEvent = hasPermission("events.create");
+  const canEditAnyEvent = hasPermission("events.edit");
+  const canEditOwnEvents = hasPermission("events.edit_own");
+  const canDeleteEvents = hasPermission("events.delete");
+  const canEditEvent = (event) => canEditAnyEvent || (canEditOwnEvents && event.created_by === user?._id);
 
   const [events, setEvents] =
     useState([]);
@@ -50,6 +59,14 @@ export default function ManageEventsPage() {
 
   const [form, setForm] =
     useState(EMPTY_EVENT);
+
+  const [rosterEvent, setRosterEvent] = useState(null);
+  const [roster, setRoster] = useState([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
+  const [rosterEmail, setRosterEmail] = useState("");
+  const [rosterAdding, setRosterAdding] = useState(false);
+  const [rosterError, setRosterError] = useState("");
+  const [rosterPending, setRosterPending] = useState("");
 
   async function loadEvents() {
     try {
@@ -74,6 +91,60 @@ export default function ManageEventsPage() {
   useEffect(() => {
     loadEvents();
   }, []);
+
+  async function openRoster(event) {
+    setRosterEvent(event);
+    setRoster([]);
+    setRosterEmail("");
+    setRosterError("");
+    setRosterLoading(true);
+    try {
+      const data = await api.getEventRegistrations(event._id);
+      setRoster(data.registrations || []);
+    } catch (error) {
+      setRosterError(error.message || "Unable to load the student roster.");
+    } finally {
+      setRosterLoading(false);
+    }
+  }
+
+  async function addRosterStudent(event) {
+    event.preventDefault();
+    if (!rosterEmail.trim() || rosterAdding) return;
+    setRosterAdding(true);
+    setRosterError("");
+    try {
+      await api.addEventRegistration(rosterEvent._id, rosterEmail.trim());
+      setRosterEmail("");
+      const data = await api.getEventRegistrations(rosterEvent._id);
+      setRoster(data.registrations || []);
+      toast.success("Student added to the event.");
+    } catch (error) {
+      setRosterError(error.message || "Unable to add this student.");
+    } finally {
+      setRosterAdding(false);
+    }
+  }
+
+  async function updateRosterStatus(registration, status) {
+    if (rosterPending) return;
+    setRosterPending(registration._id);
+    try {
+      if (status === "removed") {
+        await api.removeEventRegistration(rosterEvent._id, registration._id);
+        status = "cancelled";
+        toast.success("Student removed. The cancelled record is retained.");
+      } else {
+        await api.updateEventRegistration(rosterEvent._id, registration._id, status);
+        toast.success("Registration status updated.");
+      }
+      setRoster((current) => current.map((item) => item._id === registration._id ? { ...item, status } : item));
+    } catch (error) {
+      toast.error(error.message || "Unable to update this registration.");
+    } finally {
+      setRosterPending("");
+    }
+  }
 
   function openCreate() {
     setEditingEvent(null);
@@ -262,10 +333,10 @@ export default function ManageEventsPage() {
           </p>
         </div>
 
-        <Button type="button" onClick={openCreate} className="rounded-[var(--cc-radius-md)]">
+        {canCreateEvent && <Button type="button" onClick={openCreate} className="rounded-[var(--cc-radius-md)]">
           <Plus className="size-4" />
           Create event
-        </Button>
+        </Button>}
       </section>
 
       <section className="overflow-hidden rounded-[var(--cc-radius-lg)] border border-[var(--cc-border)] bg-[var(--cc-surface)] shadow-[var(--cc-shadow-sm)]">
@@ -328,8 +399,8 @@ export default function ManageEventsPage() {
                   </td>
 
                   <td className="px-5 py-4">
-                    <div className="flex gap-2">
-                      <button
+                    <div className="flex items-center gap-2">
+                      {canEditEvent(event) && <button
                         type="button"
                         onClick={() =>
                           openEdit(event)
@@ -338,9 +409,19 @@ export default function ManageEventsPage() {
                         aria-label="Edit event"
                       >
                         <Pencil className="size-4" />
-                      </button>
+                      </button>}
 
-                      <button
+                      {canManageRoster && <button
+                        type="button"
+                        onClick={() => openRoster(event)}
+                        className="rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] p-2 text-[var(--cc-text-muted)] hover:bg-[var(--cc-surface-subtle)]"
+                        aria-label={`View registrations for ${event.title}`}
+                        title="Manage registered students"
+                      >
+                        <UsersRound className="size-4" />
+                      </button>}
+
+                      {canDeleteEvents && <button
                         type="button"
                         onClick={() =>
                           deleteEvent(
@@ -351,7 +432,7 @@ export default function ManageEventsPage() {
                         aria-label="Delete event"
                       >
                         <Trash2 className="size-4" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>
@@ -382,6 +463,36 @@ export default function ManageEventsPage() {
           }
         />
       )}
+
+      {rosterEvent && <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setRosterEvent(null); }}>
+        <section role="dialog" aria-modal="true" aria-labelledby="event-roster-title" className="mx-auto my-6 max-w-4xl rounded-[var(--cc-radius-lg)] border border-[var(--cc-border)] bg-[var(--cc-surface)] shadow-[var(--cc-shadow-md)]">
+          <header className="flex items-start justify-between gap-4 border-b border-[var(--cc-border)] p-5 sm:p-6">
+            <div><p className="text-xs font-semibold uppercase tracking-wide text-[var(--cc-primary)]">Event roster</p><h2 id="event-roster-title" className="mt-1 text-xl font-semibold text-[var(--cc-heading)]">{rosterEvent.title}</h2><p className="mt-1 text-sm text-[var(--cc-text-muted)]">Add students by Bennett account email, update their status, or remove them from the active roster.</p></div>
+            <button type="button" onClick={() => setRosterEvent(null)} aria-label="Close roster" className="focus-ring rounded-md p-2 text-[var(--cc-text-muted)] hover:bg-[var(--cc-surface-subtle)]"><X className="size-4" /></button>
+          </header>
+          <div className="space-y-5 p-5 sm:p-6">
+            <form onSubmit={addRosterStudent} className="flex flex-col gap-2 sm:flex-row">
+              <input type="email" required value={rosterEmail} onChange={(event) => setRosterEmail(event.target.value)} placeholder="student@bennett.edu.in" aria-label="Student email address" className="focus-ring min-h-11 min-w-0 flex-1 rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] bg-[var(--cc-bg)] px-3 text-sm text-[var(--cc-text)]" />
+              <Button type="submit" loading={rosterAdding}><UsersRound className="size-4" /> Add student</Button>
+            </form>
+            {rosterError && <p role="alert" className="rounded-md bg-[var(--cc-danger-soft)] px-3 py-2 text-sm text-[var(--cc-danger)]">{rosterError}</p>}
+            <div className="overflow-x-auto rounded-[var(--cc-radius-md)] border border-[var(--cc-border)]">
+              <table className="w-full min-w-[680px] text-left">
+                <thead className="bg-[var(--cc-surface-subtle)]"><tr><th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--cc-text-soft)]">Student</th><th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--cc-text-soft)]">Enrollment ID</th><th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--cc-text-soft)]">Status</th><th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--cc-text-soft)]">Actions</th></tr></thead>
+                <tbody className="divide-y divide-[var(--cc-border)]">
+                  {rosterLoading ? <tr><td colSpan="4" className="px-4 py-10 text-center text-sm text-[var(--cc-text-muted)]">Loading registered students…</td></tr> : roster.length ? roster.map((registration) => <tr key={registration._id}>
+                    <td className="px-4 py-3"><p className="text-sm font-medium text-[var(--cc-heading)]">{registration.student?.name}</p><p className="text-xs text-[var(--cc-text-muted)]">{registration.student?.email}</p></td>
+                    <td className="px-4 py-3 text-sm text-[var(--cc-text-muted)]">{registration.student?.enrollment_id || "—"}</td>
+                    <td className="px-4 py-3"><select value={registration.status} disabled={rosterPending === registration._id} onChange={(event) => updateRosterStatus(registration, event.target.value)} aria-label={`Update status for ${registration.student?.name}`} className="focus-ring rounded-md border border-[var(--cc-border)] bg-[var(--cc-surface)] px-2.5 py-2 text-sm capitalize text-[var(--cc-text)]">{["registered", "cancelled", "attended", "waitlisted"].map((status) => <option key={status} value={status}>{status}</option>)}</select></td>
+                    <td className="px-4 py-3"><Button type="button" variant="ghost" disabled={rosterPending === registration._id || registration.status === "cancelled"} onClick={() => updateRosterStatus(registration, "removed")} className="min-h-9 px-2 text-[var(--cc-danger)]">Remove</Button></td>
+                  </tr>) : <tr><td colSpan="4" className="px-4 py-10 text-center text-sm text-[var(--cc-text-muted)]">No registrations yet. Add a student using their account email above.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs leading-5 text-[var(--cc-text-soft)]">Cancelled registration records remain saved, so students cannot re-register themselves. Admins can change a status back to Registered when needed.</p>
+          </div>
+        </section>
+      </div>}
     </div>
   );
 }

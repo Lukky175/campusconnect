@@ -14,6 +14,35 @@ html {
   background: var(--cc-bg);
 }
 
+/* Theme-aware page scrollbars, shared by the entire app. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cc-border-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cc-border-strong);
+  border: 3px solid var(--cc-bg);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cc-primary);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--cc-bg);
+}
+
 body {
   margin: 0;
   min-width: 320px;

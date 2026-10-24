@@ -7,6 +7,7 @@ from ..extensions import mongo
 from ..utils.auth import permission_required
 from ..utils.permissions import (
     SYSTEM_ROLES,
+    PERMISSION_CATALOG,
     get_all_permissions,
     normalize_permissions,
 )
@@ -95,6 +96,9 @@ def create_role():
     permissions = normalize_permissions(
         data.get("permissions", [])
     )
+    unsupported = sorted(set(permissions) - PERMISSION_CATALOG)
+    if unsupported:
+        return failure(f"Unsupported permissions: {', '.join(unsupported)}", 400)
 
     now = datetime.now(timezone.utc)
 
@@ -154,6 +158,9 @@ def update_role(role_name):
     permissions = normalize_permissions(
         data["permissions"]
     )
+    unsupported = sorted(set(permissions) - PERMISSION_CATALOG)
+    if unsupported:
+        return failure(f"Unsupported permissions: {', '.join(unsupported)}", 400)
 
     mongo.db.roles.update_one(
         {

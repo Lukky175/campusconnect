@@ -32,6 +32,7 @@ export default function FeedPage() {
   const [openComments, setOpenComments] = useState(() => new Set());
   const [comments, setComments] = useState({});
   const [commentDrafts, setCommentDrafts] = useState({});
+  const [replyTargets, setReplyTargets] = useState({});
   const [commentsLoading, setCommentsLoading] = useState(() => new Set());
   const [commentPending, setCommentPending] = useState(() => new Set());
   const [openMenu, setOpenMenu] = useState("");
@@ -50,7 +51,9 @@ export default function FeedPage() {
     api.getFeed({ saved: activeTab === "saved" })
       .then((data) => {
         if (!active) return;
-        setPosts(data.posts || []);
+        const nextPosts = data.posts || [];
+        setPosts(nextPosts);
+        showComments(nextPosts);
         setCursor(data.next_cursor || null);
         setHasMore(Boolean(data.has_more));
       })
@@ -59,12 +62,30 @@ export default function FeedPage() {
     return () => { active = false; };
   }, [activeTab, toast]);
 
+  const fetchComments = (postId) => {
+    setCommentsLoading((current) => new Set(current).add(postId));
+    api.getFeedComments(postId)
+      .then((data) => setComments((current) => ({ ...current, [postId]: data.comments || [] })))
+      .catch((error) => toast.error(error.message || "Unable to load comments."))
+      .finally(() => setCommentsLoading((current) => removeFromSet(current, postId)));
+  };
+
+  const showComments = (postList) => {
+    const ids = postList.map((post) => post._id);
+    setOpenComments((current) => new Set([...current, ...ids]));
+    ids.forEach((postId) => {
+      if (!comments[postId] && !commentsLoading.has(postId)) fetchComments(postId);
+    });
+  };
+
   const reloadFeed = async (refresh = false) => {
     if (refresh) setRefreshing(true);
     else setLoading(true);
     try {
       const data = await api.getFeed({ saved: activeTab === "saved" });
-      setPosts(data.posts || []);
+      const nextPosts = data.posts || [];
+      setPosts(nextPosts);
+      showComments(nextPosts);
       setCursor(data.next_cursor || null);
       setHasMore(Boolean(data.has_more));
     } catch (error) {
@@ -80,7 +101,9 @@ export default function FeedPage() {
     setLoadingMore(true);
     try {
       const data = await api.getFeed({ before: cursor, saved: activeTab === "saved" });
-      setPosts((current) => [...current, ...(data.posts || [])]);
+      const nextPosts = data.posts || [];
+      setPosts((current) => [...current, ...nextPosts]);
+      showComments(nextPosts);
       setCursor(data.next_cursor || null);
       setHasMore(Boolean(data.has_more));
     } catch (error) {
@@ -145,32 +168,50 @@ export default function FeedPage() {
     }
     setOpenComments((current) => new Set(current).add(postId));
     if (comments[postId]) return;
-    setCommentsLoading((current) => new Set(current).add(postId));
-    try {
-      const data = await api.getFeedComments(postId);
-      setComments((current) => ({ ...current, [postId]: data.comments || [] }));
-    } catch (error) {
-      toast.error(error.message || "Unable to load comments.");
-    } finally {
-      setCommentsLoading((current) => removeFromSet(current, postId));
-    }
+    if (!comments[postId]) fetchComments(postId);
   };
 
   const submitComment = async (event, postId) => {
     event.preventDefault();
     const draft = (commentDrafts[postId] || "").trim();
     if (!draft || commentPending.has(postId)) return;
+    const reply = replyTargets[postId];
     setCommentPending((current) => new Set(current).add(postId));
     try {
-      const data = await api.createFeedComment(postId, draft);
+      const data = await api.createFeedComment(postId, draft, reply ? {
+        parent_comment_id: reply.parentCommentId,
+        reply_to_user_id: reply.userId,
+        reply_to_name: reply.userName,
+      } : {});
       setComments((current) => ({ ...current, [postId]: [...(current[postId] || []), data.comment] }));
       setCommentDrafts((current) => ({ ...current, [postId]: "" }));
+      setReplyTargets((current) => ({ ...current, [postId]: null }));
       setPosts((current) => current.map((post) => post._id === postId ? { ...post, comment_count: (post.comment_count || 0) + 1 } : post));
     } catch (error) {
       toast.error(error.message || "Unable to add your comment.");
     } finally {
       setCommentPending((current) => removeFromSet(current, postId));
     }
+  };
+
+  const replyToComment = (postId, comment) => {
+    const userName = comment.author?.username || comment.author?.name?.replace(/\s+/g, "_").toLowerCase() || "student";
+    setReplyTargets((current) => ({ ...current, [postId]: { parentCommentId: comment._id, userId: comment.author?._id, userName } }));
+    setCommentDrafts((current) => ({ ...current, [postId]: `@${userName} ` }));
+    window.setTimeout(() => document.getElementById(`comment-${postId}`)?.focus(), 0);
+  };
+
+  const deleteComment = async (postId, comment) => {
+    if (!window.confirm("Delete your comment? Replies will remain in the thread.")) return;
+    const key = `comment:${comment._id}`;
+    setPending((current) => new Set(current).add(key));
+    try {
+      await api.deleteOwnFeedComment(comment._id);
+      setComments((current) => ({ ...current, [postId]: (current[postId] || []).map((item) => item._id === comment._id ? { ...item, body: "", is_deleted: true, reaction_count: 0, reacted_by_me: false } : item) }));
+      setPosts((current) => current.map((post) => post._id === postId ? { ...post, comment_count: Math.max(0, (post.comment_count || 0) - 1) } : post));
+      toast.success("Comment deleted.");
+    } catch (error) { toast.error(error.message || "Unable to delete your comment."); }
+    finally { setPending((current) => removeFromSet(current, key)); }
   };
 
   const toggleCommentReaction = async (commentId, postId) => {
@@ -225,7 +266,8 @@ export default function FeedPage() {
     setOpenMenu("");
     if (!window.confirm("Remove this post from the campus feed?")) return;
     try {
-      await api.deleteFeedPost(post._id);
+      if (post.author?._id === user?._id) await api.deleteOwnFeedPost(post._id);
+      else await api.deleteFeedPost(post._id);
       setPosts((current) => current.filter((item) => item._id !== post._id));
       toast.success("Post removed from the campus feed.");
     } catch (error) {
@@ -286,14 +328,14 @@ export default function FeedPage() {
       {loading ? <FeedSkeleton /> : posts.length ? posts.map((post) => <article key={post._id} className="overflow-visible rounded-[var(--cc-radius-lg)] border border-[var(--cc-border)] bg-[var(--cc-surface)] shadow-[var(--cc-shadow-sm)]">
         <div className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
-            {isAdmin && post.author?._id ? <Link to={`/dashboard/admin/users/${encodeURIComponent(post.author._id)}/profile`} aria-label={`View ${post.author.name}'s profile`} className="focus-ring rounded-full"><Avatar name={post.author?.name} /></Link> : <Avatar name={post.author?.name} />}
-            <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-[var(--cc-heading)]">{post.author?.name || "CampusConnect member"}</p><p className="mt-0.5 text-xs text-[var(--cc-text-soft)]"><time dateTime={post.created_at}>{formatTimestamp(post.created_at)}</time><span className="mx-1.5">·</span><span className="capitalize">{(post.author?.role || "student").replaceAll("_", " ")}</span></p></div>
+            {post.author?._id ? <Link to={`/dashboard/users/${encodeURIComponent(post.author._id)}/profile`} aria-label={`View ${post.author.name}'s profile`} className="focus-ring rounded-full"><Avatar name={post.author?.name} /></Link> : <Avatar name={post.author?.name} />}
+            <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-[var(--cc-heading)]">{post.author?._id ? <Link to={`/dashboard/users/${encodeURIComponent(post.author._id)}/profile`} className="hover:text-[var(--cc-primary)]">{post.author?.name || "CampusConnect member"}</Link> : (post.author?.name || "CampusConnect member")}{post.author?.username && <Link to={`/dashboard/users/${encodeURIComponent(post.author._id)}/profile`} className="ml-1.5 text-xs font-normal text-[var(--cc-text-muted)] hover:text-[var(--cc-primary)]">@{post.author.username}</Link>}</p><p className="mt-0.5 text-xs text-[var(--cc-text-soft)]"><time dateTime={post.created_at}>{formatTimestamp(post.created_at)}</time><span className="mx-1.5">·</span><span className="capitalize">{(post.author?.role || "student").replaceAll("_", " ")}</span></p></div>
             <div className="relative">
               <button type="button" aria-label="Post options" aria-expanded={openMenu === post._id} onClick={() => setOpenMenu((current) => current === post._id ? "" : post._id)} className="focus-ring flex size-9 items-center justify-center rounded-full text-[var(--cc-text-muted)] hover:bg-[var(--cc-surface-subtle)]"><ChevronDown className="size-4" /></button>
               {openMenu === post._id && <div className="absolute right-0 top-10 z-20 w-52 rounded-lg border border-[var(--cc-border)] bg-[var(--cc-surface-raised)] p-1.5 shadow-[var(--cc-shadow-md)]" role="menu">
-                <button type="button" role="menuitem" onClick={() => blockAuthor(post)} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-text)] hover:bg-[var(--cc-surface-subtle)]"><ShieldBan className="size-4" /> Block this user</button>
-                <button type="button" role="menuitem" onClick={() => { setReportingPost(post); setReportReason("spam"); setReportDetails(""); setOpenMenu(""); }} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-text)] hover:bg-[var(--cc-surface-subtle)]"><Flag className="size-4" /> Report post</button>
-                {isAdmin && <button type="button" role="menuitem" onClick={() => deletePost(post)} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-danger)] hover:bg-[var(--cc-danger-soft)]"><Trash2 className="size-4" /> Delete post</button>}
+                {post.author?._id !== user?._id && <><button type="button" role="menuitem" onClick={() => blockAuthor(post)} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-text)] hover:bg-[var(--cc-surface-subtle)]"><ShieldBan className="size-4" /> Block this user</button>
+                <button type="button" role="menuitem" onClick={() => { setReportingPost(post); setReportReason("spam"); setReportDetails(""); setOpenMenu(""); }} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-text)] hover:bg-[var(--cc-surface-subtle)]"><Flag className="size-4" /> Report post</button></>}
+                {(isAdmin || post.author?._id === user?._id) && <button type="button" role="menuitem" onClick={() => deletePost(post)} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--cc-danger)] hover:bg-[var(--cc-danger-soft)]"><Trash2 className="size-4" /> {post.author?._id === user?._id ? "Delete your post" : "Delete post"}</button>}
               </div>}
             </div>
           </div>
@@ -308,15 +350,11 @@ export default function FeedPage() {
         </div>
         {openComments.has(post._id) && <div className="border-t border-[var(--cc-border)] bg-[var(--cc-bg)]/50 px-4 py-4 sm:px-5">
           {commentsLoading.has(post._id) ? <div className="flex items-center gap-2 py-3 text-sm text-[var(--cc-text-muted)]"><LoaderCircle className="size-4 animate-spin" /> Loading comments…</div> : <div className="mb-4 space-y-4">
-            {(comments[post._id] || []).map((comment) => <div key={comment._id} className="flex gap-3">
-              {isAdmin && comment.author?._id ? <Link to={`/dashboard/admin/users/${encodeURIComponent(comment.author._id)}/profile`} aria-label={`View ${comment.author.name}'s profile`}><Avatar name={comment.author?.name} small /></Link> : <Avatar name={comment.author?.name} small />}
-              <div className="min-w-0 flex-1 rounded-lg bg-[var(--cc-surface)] px-3.5 py-2.5"><div className="flex flex-wrap items-baseline gap-x-2"><p className="text-xs font-semibold text-[var(--cc-heading)]">{comment.author?.name || "CampusConnect member"}</p><time dateTime={comment.created_at} className="text-[11px] text-[var(--cc-text-soft)]">{formatTimestamp(comment.created_at)}</time></div><p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-[var(--cc-text)]">{comment.body}</p>
-                <button type="button" disabled={pending.has(`comment:${comment._id}`)} onClick={() => toggleCommentReaction(comment._id, post._id)} aria-pressed={comment.reacted_by_me} className={`focus-ring mt-2 inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs ${comment.reacted_by_me ? "font-semibold text-[var(--cc-primary)]" : "text-[var(--cc-text-soft)] hover:bg-[var(--cc-surface-subtle)]"}`}><Heart className={`size-3.5 ${comment.reacted_by_me ? "fill-current" : ""}`} />{comment.reaction_count || 0}<span>Like</span></button>
-              </div>
-            </div>)}
+            {(comments[post._id] || []).filter((comment) => !comment.parent_comment_id).map((comment) => <CommentThread key={comment._id} comment={comment} comments={comments[post._id] || []} depth={0} currentUserId={user?._id} pending={pending} onLike={(item) => toggleCommentReaction(item._id, post._id)} onReply={(item) => replyToComment(post._id, item)} onDelete={(item) => deleteComment(post._id, item)} />)}
             {(comments[post._id] || []).length === 0 && <p className="py-2 text-sm text-[var(--cc-text-muted)]">No comments yet. Start the conversation.</p>}
             {(comments[post._id] || []).length >= 100 && post.comment_count > 100 && <p className="text-xs text-[var(--cc-text-soft)]">Showing the latest 100 comments.</p>}
           </div>}
+          {replyTargets[post._id] && <div className="mb-2 flex items-center justify-between rounded-md bg-[var(--cc-primary-soft)] px-3 py-2 text-xs text-[var(--cc-primary)]"><span>Replying to <strong>{replyTargets[post._id].userName}</strong></span><button type="button" onClick={() => { setReplyTargets((current) => ({ ...current, [post._id]: null })); setCommentDrafts((current) => ({ ...current, [post._id]: "" })); }} className="focus-ring rounded p-1" aria-label="Cancel reply"><X className="size-3.5" /></button></div>}
           <form onSubmit={(event) => submitComment(event, post._id)} className="flex items-end gap-2.5">
             <div className="min-w-0 flex-1"><label className="sr-only" htmlFor={`comment-${post._id}`}>Write a comment</label><textarea id={`comment-${post._id}`} value={commentDrafts[post._id] || ""} onChange={(event) => setCommentDrafts((current) => ({ ...current, [post._id]: event.target.value }))} rows={1} maxLength={2000} placeholder="Write a comment…" className="focus-ring min-h-10 max-h-32 w-full resize-y rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] bg-[var(--cc-surface)] px-3 py-2.5 text-sm text-[var(--cc-text)] placeholder:text-[var(--cc-text-soft)]" /><EmojiRow onSelect={(emoji) => { setCommentDrafts((current) => ({ ...current, [post._id]: `${current[post._id] || ""}${emoji}` })); document.getElementById(`comment-${post._id}`)?.focus(); }} compact /></div>
             <Button type="submit" aria-label="Send comment" loading={commentPending.has(post._id)} disabled={!(commentDrafts[post._id] || "").trim()} className="size-10 min-h-10 shrink-0 rounded-[var(--cc-radius-sm)] p-0">{!commentPending.has(post._id) && <Send className="size-4" />}</Button>
@@ -329,6 +367,33 @@ export default function FeedPage() {
 
     {reportingPost && <ReportDialog post={reportingPost} reason={reportReason} setReason={setReportReason} details={reportDetails} setDetails={setReportDetails} loading={reporting} onCancel={() => setReportingPost(null)} onSubmit={submitReport} />}
     {blockedUsers !== null && <BlockedUsersDialog users={blockedUsers} loading={blockedLoading} onUnblock={unblockUser} onClose={() => setBlockedUsers(null)} />}
+  </div>;
+}
+
+function CommentThread({ comment, comments, depth, currentUserId, pending, onLike, onReply, onDelete }) {
+  const replies = comments.filter((item) => item.parent_comment_id === comment._id);
+  return <div className={depth > 0 ? `mt-3 border-l-2 border-[var(--cc-border)] pl-3 sm:pl-4 ${depth > 4 ? "ml-3" : "ml-5 sm:ml-7"}` : ""}>
+    <CommentItem comment={comment} onLike={() => onLike(comment)} onReply={() => onReply(comment)} onDelete={() => onDelete(comment)} canDelete={comment.author?._id === currentUserId} likedPending={pending.has(`comment:${comment._id}`)} />
+    {depth < 8 && replies.map((reply) => <CommentThread key={reply._id} comment={reply} comments={comments} depth={depth + 1} currentUserId={currentUserId} pending={pending} onLike={onLike} onReply={onReply} onDelete={onDelete} />)}
+  </div>;
+}
+
+function CommentItem({ comment, onLike, onReply, onDelete, canDelete, likedPending }) {
+  const authorName = comment.author?.name || "CampusConnect member";
+  const mention = comment.reply_to_name && comment.body.startsWith(`@${comment.reply_to_name}`)
+    ? `@${comment.reply_to_name}`
+    : "";
+  return <div className="flex gap-3">
+    {comment.author?._id ? <Link to={`/dashboard/users/${encodeURIComponent(comment.author._id)}/profile`} aria-label={`View ${authorName}'s profile`} className="shrink-0"><Avatar name={authorName} small /></Link> : <Avatar name={authorName} small />}
+    <div className="min-w-0 flex-1 rounded-lg bg-[var(--cc-surface)] px-3.5 py-2.5">
+      <div className="flex flex-wrap items-baseline gap-x-2"><p className="text-xs font-semibold text-[var(--cc-heading)]">{comment.author?._id ? <Link to={`/dashboard/users/${encodeURIComponent(comment.author._id)}/profile`} className="hover:text-[var(--cc-primary)]">{authorName}</Link> : authorName}{comment.author?.username && <Link to={`/dashboard/users/${encodeURIComponent(comment.author._id)}/profile`} className="ml-1 font-normal text-[var(--cc-text-muted)] hover:text-[var(--cc-primary)]">@{comment.author.username}</Link>}</p><time dateTime={comment.created_at} className="text-[11px] text-[var(--cc-text-soft)]">{formatTimestamp(comment.created_at)}</time></div>
+      <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-[var(--cc-text)]">{comment.is_deleted ? <span className="italic text-[var(--cc-text-soft)]">Comment deleted</span> : <>{mention && <><span className="font-semibold text-[var(--cc-primary)]">{mention}</span>{comment.body.slice(mention.length)}</>}{!mention && comment.body}</>}</p>
+      {!comment.is_deleted && <div className="mt-1 flex items-center gap-1">
+        <button type="button" disabled={likedPending} onClick={onLike} aria-pressed={comment.reacted_by_me} className={`focus-ring inline-flex min-h-7 items-center gap-1.5 rounded px-2 py-1 text-xs ${comment.reacted_by_me ? "font-semibold text-[var(--cc-primary)]" : "text-[var(--cc-text-soft)] hover:bg-[var(--cc-surface-subtle)]"}`}><Heart className={`size-3.5 ${comment.reacted_by_me ? "fill-current" : ""}`} />{comment.reaction_count || 0}<span>{comment.reacted_by_me ? "Liked" : "Like"}</span></button>
+        <button type="button" onClick={onReply} className="focus-ring inline-flex min-h-7 items-center rounded px-2 py-1 text-xs font-medium text-[var(--cc-text-soft)] hover:bg-[var(--cc-surface-subtle)] hover:text-[var(--cc-primary)]">Reply</button>
+        {canDelete && <button type="button" onClick={onDelete} className="focus-ring inline-flex min-h-7 items-center gap-1 rounded px-2 py-1 text-xs text-[var(--cc-text-soft)] hover:bg-[var(--cc-danger-soft)] hover:text-[var(--cc-danger)]"><Trash2 className="size-3" /> Delete</button>}
+      </div>}
+    </div>
   </div>;
 }
 

@@ -10,6 +10,7 @@ DEFAULT_ROLE_PERMISSIONS = {
         "registrations.view_own",
         "profile.view",
         "profile.edit",
+        "profile.request_username_change",
     ],
     "club_head": [
         "events.view",
@@ -18,11 +19,13 @@ DEFAULT_ROLE_PERMISSIONS = {
         "registrations.view_own",
         "profile.view",
         "profile.edit",
+        "profile.request_username_change",
     ],
     "admin": [
         "events.view",
         "events.create",
         "events.edit",
+        "events.edit_own",
         "events.delete",
 
         "users.view",
@@ -32,11 +35,35 @@ DEFAULT_ROLE_PERMISSIONS = {
         "roles.manage",
 
         "registrations.view",
+        "registrations.view_own",
         "registrations.manage",
+        "clubs.manage",
+        "blogs.manage",
+        "website.manage",
+        "feed.moderate",
 
         "profile.view",
         "profile.edit",
+        "profile.request_username_change",
+        "users.username.manage",
+        "notifications.send",
     ],
+}
+
+
+PERMISSION_CATALOG = {
+    "events.view", "events.create", "events.edit", "events.edit_own", "events.delete",
+    "registrations.create", "registrations.view_own", "registrations.view", "registrations.manage",
+    "profile.view", "profile.edit", "profile.request_username_change", "users.view", "users.manage", "users.username.manage", "roles.view", "roles.manage",
+    "notifications.send",
+    "clubs.manage", "blogs.manage", "website.manage", "feed.moderate",
+}
+
+ADMIN_PERMISSION_SCHEMA_VERSION = 3
+ADMIN_PERMISSION_MIGRATIONS = {
+    # These are capabilities added after the original admin roles were seeded.
+    2: ["clubs.manage", "blogs.manage", "website.manage", "feed.moderate"],
+    3: ["users.username.manage", "notifications.send", "profile.request_username_change"],
 }
 
 
@@ -113,6 +140,35 @@ def get_role_permissions(role_name):
     if not role:
         return set()
 
+    # Migrate existing seeded admin records once so the new application pages
+    # are available without a manual database edit. Later UI changes remain intact.
+    schema_version = int(role.get("permission_schema_version") or 0)
+    if role_name == "admin" and schema_version < ADMIN_PERMISSION_SCHEMA_VERSION:
+        missing = [
+            permission
+            for version, permissions in ADMIN_PERMISSION_MIGRATIONS.items()
+            if version > schema_version
+            for permission in permissions
+        ]
+        mongo.db.roles.update_one(
+            {"_id": role["_id"]},
+            {
+                "$addToSet": {"permissions": {"$each": missing}},
+                "$set": {"permission_schema_version": ADMIN_PERMISSION_SCHEMA_VERSION},
+            },
+        )
+        role = get_role_document(role_name)
+
+    if role_name in {"student", "club_head"} and schema_version < ADMIN_PERMISSION_SCHEMA_VERSION:
+        mongo.db.roles.update_one(
+            {"_id": role["_id"]},
+            {
+                "$addToSet": {"permissions": "profile.request_username_change"},
+                "$set": {"permission_schema_version": ADMIN_PERMISSION_SCHEMA_VERSION},
+            },
+        )
+        role = get_role_document(role_name)
+
     return set(
         normalize_permissions(
             role.get("permissions", [])
@@ -145,25 +201,5 @@ def user_has_permission(
 
 
 def get_all_permissions():
-    """
-    Return every permission currently known to the system.
-
-    This is built from the roles collection, so permissions
-    created through the admin UI are automatically included.
-    """
-
-    permissions = set()
-
-    for role in mongo.db.roles.find(
-        {},
-        {
-            "permissions": 1,
-        },
-    ):
-        permissions.update(
-            normalize_permissions(
-                role.get("permissions", [])
-            )
-        )
-
-    return sorted(permissions)
+    """Return permissions implemented by this application."""
+    return sorted(PERMISSION_CATALOG)

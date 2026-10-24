@@ -28,6 +28,7 @@ import { useState } from "react";
 
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 
 /*
@@ -108,25 +109,32 @@ const adminNavItems = [
     label: "Manage Events",
     to: "/dashboard/admin/events",
     icon: CalendarDays,
-    permission: "events.create",
+    permission: "events.view",
+    anyPermission: ["events.create", "events.edit", "events.edit_own"],
+  },
+  {
+    label: "Tech Clubs",
+    to: "/dashboard/admin/clubs",
+    icon: Code2,
+    permission: "clubs.manage",
   },
   {
     label: "Blogs Management",
     to: "/dashboard/admin/blogs",
     icon: FileText,
-    role: "admin",
+    permission: "blogs.manage",
   },
   {
     label: "Website Settings",
     to: "/dashboard/admin/website-settings",
     icon: Globe2,
-    role: "admin",
+    permission: "website.manage",
   },
   {
     label: "Feed Reports",
     to: "/dashboard/admin/feed-reports",
     icon: Flag,
-    role: "admin",
+    permission: "feed.moderate",
   },
   {
     label: "Roles & Permissions",
@@ -194,7 +202,8 @@ export default function DashboardLayout() {
     adminNavItems.filter(
       (item) =>
         (!item.role || user?.role === item.role) &&
-        (!item.permission || hasPermission(item.permission))
+        (!item.permission || hasPermission(item.permission)) &&
+        (!item.anyPermission || item.anyPermission.some(hasPermission))
     );
 
 
@@ -204,7 +213,7 @@ export default function DashboardLayout() {
       {/* ---------------------------------------------------
           Logo
       --------------------------------------------------- */}
-      <div className="flex h-16 items-center justify-between border-b border-[var(--cc-border)] px-5">
+      <div className="flex h-14 items-center justify-between border-b border-[var(--cc-border)] px-5">
 
         <NavLink
           to="/dashboard"
@@ -416,7 +425,7 @@ export default function DashboardLayout() {
         {/* -------------------------------------------------
             Header
         ------------------------------------------------- */}
-        <header className="flex h-16 items-center justify-between border-b border-[var(--cc-border)] bg-[var(--cc-surface)] px-4 md:px-6">
+        <header className="flex h-14 items-center justify-between border-b border-[var(--cc-border)] bg-[var(--cc-surface)] px-4 md:px-6">
 
           {/* Mobile menu */}
           <button
@@ -432,6 +441,8 @@ export default function DashboardLayout() {
 
 
           <div className="ml-auto flex items-center gap-2">
+
+            <NotificationBell />
 
             {/* ---------------------------------------------
                 Theme toggle

@@ -19,9 +19,25 @@ import { websiteApi } from "./api/website/websiteApi";
 import { websiteSettingsAdminApi } from "./api/admin/websiteSettingsAdminApi";
 import { feedApi } from "./api/feed/feedApi";
 
+const notificationApi = {
+  getNotifications: () => request("/notifications"),
+  markNotificationRead: (notificationId) => request(`/notifications/${encodeURIComponent(notificationId)}/read`, { method: "PATCH" }),
+  markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH" }),
+  sendNotification: (payload) => request("/notifications/send", { method: "POST", body: JSON.stringify(payload) }),
+  createUsernameChangeRequest: (payload) => request("/profile/username-requests", { method: "POST", body: JSON.stringify(payload) }),
+  getMyUsernameChangeRequests: () => request("/profile/username-requests/me"),
+};
+
 export const api = {
   health: () =>
     request("/health"),
+
+  getMyProfile: () => request("/profile"),
+  getCommunityProfile: (userId) => request(`/profile/users/${encodeURIComponent(userId)}`),
+  updateMyProfile: (payload) => request("/profile", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  }),
 
   ...authApi,
   ...eventApi,
@@ -31,6 +47,7 @@ export const api = {
   ...websiteApi,
   ...websiteSettingsAdminApi,
   ...feedApi,
+  ...notificationApi,
 
   ...eventCreateApi,
   ...eventEditApi,
@@ -52,4 +69,9 @@ export const api = {
 
   deleteAdminEvent:
     eventAdminApi.deleteEvent,
+
+  getEventRegistrations: eventAdminApi.getEventRegistrations,
+  addEventRegistration: eventAdminApi.addEventRegistration,
+  updateEventRegistration: eventAdminApi.updateEventRegistration,
+  removeEventRegistration: eventAdminApi.removeEventRegistration,
 };
