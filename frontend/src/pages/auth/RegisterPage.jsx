@@ -4,6 +4,7 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useToast } from "../../context/ToastContext";
 import { api } from "../../services/api";
+import Seo from "../../components/common/Seo";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -45,7 +46,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--cc-bg)] px-4 py-12">
+    <>
+      <Seo title="Create an account" description="Create a CampusConnect account to join student communities and register for events." path="/register" robots="noindex,follow" />
+      <main className="flex min-h-screen items-center justify-center bg-[var(--cc-bg)] px-4 py-12">
       <div className="w-full max-w-lg">
         <Link to="/" className="block text-center text-lg font-semibold text-[var(--cc-heading)]">Campus<span className="text-[var(--cc-primary)]">Connect</span></Link>
         <div className="mt-7 rounded-[var(--cc-radius-xl)] border border-[var(--cc-border)] bg-[var(--cc-surface)] p-7 shadow-[var(--cc-shadow-sm)]">
@@ -65,6 +68,7 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

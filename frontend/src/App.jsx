@@ -60,6 +60,21 @@ export default function App() {
             />
 
             <Route
+              path="/hackathons"
+              element={<EventsPage key="hackathons" category="Hackathon" />}
+            />
+
+            <Route
+              path="/workshops"
+              element={<EventsPage key="workshops" category="Workshop" />}
+            />
+
+            <Route
+              path="/competitions"
+              element={<EventsPage key="competitions" category="Competition" />}
+            />
+
+            <Route
               path="/events/:eventId"
               element={<EventDetailsPage />}
             />

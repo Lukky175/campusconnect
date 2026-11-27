@@ -3,6 +3,9 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import PublicLayout from "../../components/layout/PublicLayout";
 import { api } from "../../services/api";
+import Seo from "../../components/common/Seo";
+import BlogContent from "../../components/common/BlogContent";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
@@ -23,16 +26,35 @@ export default function BlogDetailPage() {
 
   return <PublicLayout>
     <article className="container-page py-10 md:py-16">
+      {blog && <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog", to: "/blog" }]} current={blog.title} />}
       <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-[var(--cc-text-muted)] hover:text-[var(--cc-primary)]"><ArrowLeft className="size-4" />All blogs</Link>
       {loading ? <div className="mx-auto mt-10 max-w-3xl animate-pulse"><div className="h-8 w-2/3 rounded bg-[var(--cc-surface-subtle)]" /><div className="mt-6 h-80 rounded-[var(--cc-radius-lg)] bg-[var(--cc-surface-subtle)]" /></div>
         : error || !blog ? <div className="py-20 text-center"><h1 className="text-2xl font-semibold text-[var(--cc-heading)]">Blog not found</h1><p className="mt-2 text-sm text-[var(--cc-text-muted)]">This article may have been unpublished or removed.</p><Link to="/blog" className="mt-5 inline-block text-sm font-medium text-[var(--cc-primary)] hover:underline">Back to blogs</Link></div>
           : <div className="mx-auto mt-8 max-w-3xl">
+            <Seo
+              title={blog.title}
+              description={blog.excerpt}
+              path={"/blog/" + encodeURIComponent(blog.slug)}
+              image={blog.cover_image_url || undefined}
+              type="article"
+              schema={{
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                headline: blog.title,
+                description: blog.excerpt,
+                datePublished: blog.published_at || undefined,
+                dateModified: blog.updated_at || undefined,
+                author: blog.author ? { "@type": "Person", name: blog.author } : undefined,
+                image: blog.cover_image_url ? [blog.cover_image_url] : undefined,
+                mainEntityOfPage: "https://campusconect.online/blog/" + encodeURIComponent(blog.slug),
+              }}
+            />
             <div className="flex flex-wrap gap-2">{blog.tags?.map((tag) => <span key={tag} className="rounded-full bg-[var(--cc-primary-soft)] px-2.5 py-1 text-xs font-medium text-[var(--cc-primary)]">{tag}</span>)}</div>
             <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--cc-heading)] sm:text-4xl">{blog.title}</h1>
             <p className="mt-4 text-base leading-7 text-[var(--cc-text-muted)]">{blog.excerpt}</p>
             <p className="mt-4 text-sm text-[var(--cc-text-soft)]">{formatDate(blog.published_at)}{blog.author ? ` · ${blog.author}` : ""}</p>
             {blog.cover_image_url ? <img src={blog.cover_image_url} alt="" className="mt-8 max-h-[520px] w-full rounded-[var(--cc-radius-lg)] object-cover" /> : <div className="mt-8 flex h-48 items-center justify-center rounded-[var(--cc-radius-lg)] bg-[var(--cc-primary-soft)] text-[var(--cc-primary)]"><BookOpen className="size-9" /></div>}
-            <div className="mt-8 whitespace-pre-wrap text-sm leading-7 text-[var(--cc-text)]">{blog.content}</div>
+            <BlogContent content={blog.content} />
           </div>}
     </article>
   </PublicLayout>;

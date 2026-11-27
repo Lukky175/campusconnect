@@ -158,6 +158,8 @@ COPY . .
 
 ARG VITE_API_BASE_URL=/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ARG VITE_SITE_URL=https://campusconect.online
+ENV VITE_SITE_URL=$VITE_SITE_URL
 
 RUN npm run build
 
@@ -320,6 +322,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           build-args: |
             VITE_API_BASE_URL=/api
+            VITE_SITE_URL=https://campusconect.online
           tags: lukky175/campusconnect-frontend:${{ steps.image.outputs.tag }}
 
 
@@ -408,6 +411,7 @@ FLASK_ENV=production
 PORT=5000
 MONGO_URI=mongodb+srv://<DB_USER>:<URL_ENCODED_DB_PASSWORD>@<ATLAS_CLUSTER>/<DATABASE_OPTIONS>
 MONGO_DB_NAME=campus_connect
+SITE_URL=https://campusconect.online
 CORS_ORIGINS=https://campusconect.online,https://www.campusconect.online
 JWT_SECRET_KEY=<LONG_RANDOM_PRODUCTION_SECRET>
 
@@ -799,6 +803,8 @@ sudo certbot renew --dry-run
 # Application checks
 curl -I https://campusconect.online
 curl https://campusconect.online/api/health
+curl https://campusconect.online/robots.txt
+curl https://campusconect.online/sitemap.xml
 
 
 ------------------------------------------------------------------------
