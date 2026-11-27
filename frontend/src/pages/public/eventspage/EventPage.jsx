@@ -24,6 +24,8 @@ import Badge from "../../../components/common/Badge";
 
 import { api } from "../../../services/api";
 import { useToast } from "../../../context/ToastContext";
+import Seo from "../../../components/common/Seo";
+import Breadcrumbs from "../../../components/common/Breadcrumbs";
 
 
 export default function EventPage({ dashboard = false }) {
@@ -219,9 +221,55 @@ export default function EventPage({ dashboard = false }) {
   };
 
 
+  const eventPath = "/events/" + encodeURIComponent(event.slug || event._id);
+  const isOnlineEvent = String(event.mode || "").toLowerCase().includes("online");
+  const eventLocation = event.location
+    ? {
+        "@type": "Place",
+        name: event.location,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: event.city || undefined,
+          addressRegion: event.state || undefined,
+          addressCountry: event.country || "India",
+        },
+      }
+    : isOnlineEvent && event.registration_url
+      ? { "@type": "VirtualLocation", url: event.registration_url }
+      : undefined;
+  const eventStartDate = event.start_date || event.date || undefined;
+  const eventSchema = eventLocation && eventStartDate
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: event.title,
+        description: event.description || event.details || undefined,
+        startDate: eventStartDate,
+        eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: isOnlineEvent
+          ? "https://schema.org/OnlineEventAttendanceMode"
+          : "https://schema.org/OfflineEventAttendanceMode",
+        location: eventLocation,
+        organizer: event.organizer
+          ? { "@type": "Organization", name: event.organizer }
+          : undefined,
+        url: "https://campusconect.online" + eventPath,
+      }
+    : undefined;
 
   return (
     <PageLayout>
+      {!dashboard && <Seo
+        title={event.title}
+        description={event.description || "Event details, eligibility and registration information for university students."}
+        path={eventPath}
+        type="article"
+        schema={eventSchema}
+      />}
+      {!dashboard && <Breadcrumbs
+        items={[{ label: "Home", to: "/" }, { label: "Events", to: "/events" }]}
+        current={event.title}
+      />}
 
       <section className="container-page py-12 md:py-16">
 

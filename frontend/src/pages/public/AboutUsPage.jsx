@@ -1,6 +1,8 @@
 import { ArrowDown, ArrowRight, BookOpen, HeartHandshake, Network } from "lucide-react";
 import PublicLayout from "../../components/layout/PublicLayout";
 import Button from "../../components/common/Button";
+import Seo from "../../components/common/Seo";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 const values = [
   { icon: Network, title: "Find what’s happening", text: "Events, clubs and campus updates are easier to find when they live in one place." },
@@ -10,6 +12,12 @@ const values = [
 
 export default function AboutUsPage() {
   return <PublicLayout mainClassName="pt-0">
+    <Seo
+      title="About CampusConnect and our student team"
+      description="Meet the Bennett University students building CampusConnect to help students find campus events, technology clubs and opportunities."
+      path="/about"
+    />
+    <Breadcrumbs items={[{ label: "Home", to: "/" }]} current="About" />
     <main>
       <section className="relative isolate flex min-h-[68svh] items-end overflow-hidden bg-[#201710] pt-28 sm:pt-36">
         <img src="/bennet-university.jpg" alt="Bennett University campus" className="absolute inset-0 -z-20 size-full object-cover object-center" fetchPriority="high" />

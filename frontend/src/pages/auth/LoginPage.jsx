@@ -10,6 +10,7 @@ import Button from "../../components/common/Button";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import PublicLayout from "../../components/layout/PublicLayout";
+import Seo from "../../components/common/Seo";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -49,7 +50,7 @@ export default function LoginPage() {
   };
 
   return (
-    <PublicLayout mainClassName="pt-0" hideFooter><AuthShell
+    <PublicLayout mainClassName="pt-0" hideFooter><Seo title="Sign in" description="Sign in to your CampusConnect student account." path="/login" robots="noindex,follow" /><AuthShell
       title="Welcome back"
       subtitle="Sign in to continue to your CampusConnect account."
     >

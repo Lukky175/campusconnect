@@ -5,6 +5,8 @@ import PublicLayout from "../../components/layout/PublicLayout";
 import EmptyState from "../../components/common/EmptyState";
 import { api } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Seo from "../../components/common/Seo";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
@@ -32,6 +34,18 @@ export default function BlogsPage() {
     .filter(Boolean).join(" ").toLowerCase().includes(normalizedQuery));
 
   return <PublicLayout>
+    <Seo
+      title="Student technology guides and campus stories"
+      description="Read practical technology guides, hackathon advice and campus stories for university students."
+      path="/blog"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Student technology guides and campus stories",
+        url: "https://campusconect.online/blog",
+      }}
+    />
+    <Breadcrumbs items={[{ label: "Home", to: "/" }]} current="Blog" />
     <section className="border-b border-[var(--cc-border)] bg-[var(--cc-surface-subtle)]">
       <div className="container-page py-14 md:py-20">
         <p className="text-sm font-medium text-[var(--cc-primary)]">CampusConnect journal</p>

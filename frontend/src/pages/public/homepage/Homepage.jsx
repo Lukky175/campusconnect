@@ -5,6 +5,7 @@ import PublicLayout from "../../../components/layout/PublicLayout";
 import Button from "../../../components/common/Button";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../services/api";
+import Seo from "../../../components/common/Seo";
 
 const campusPaths = [
   { icon: CalendarDays, number: "01", title: "Find your next thing", text: "Hackathons, talks, workshops and campus activities, collected in one place.", link: "Browse events", to: "/events" },
@@ -29,6 +30,28 @@ export default function HomePage() {
   }, []);
 
   return <PublicLayout mainClassName="pt-0">
+    <Seo
+      title="College Tech Events in India"
+      description="Discover college tech events in India, including hackathons, workshops, coding competitions, technology clubs and student guides."
+      path="/"
+      schema={[
+        {
+          "@type": "Organization",
+          "@id": "https://campusconect.online/#organization",
+          name: "CampusConnect",
+          url: "https://campusconect.online/",
+          description: "A student platform for discovering university technology events and communities.",
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://campusconect.online/#website",
+          name: "CampusConnect",
+          url: "https://campusconect.online/",
+          publisher: { "@id": "https://campusconect.online/#organization" },
+          inLanguage: "en-IN",
+        },
+      ]}
+    />
     <CampusVideoHero communityHref={feedHref} />
 
     <section className="container-page py-16 sm:py-20 lg:py-24">
@@ -46,7 +69,7 @@ export default function HomePage() {
 
     <section className="container-page py-16 sm:py-20 lg:py-24">
       <div className="grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-start lg:gap-14">
-        <div className="lg:sticky lg:top-28"><p className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--cc-primary)]"><Sparkles className="size-4" /> Around Bennett</p><h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--cc-heading)] sm:text-4xl">The campus is always making something happen.</h2><p className="mt-4 max-w-md text-sm leading-7 text-[var(--cc-text-muted)]">A workshop you didn’t know about. A club building its next project. A question someone can help answer. CampusConnect brings those moments closer together.</p><Link to="/events" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--cc-primary)] hover:underline">See all campus events <ArrowRight className="size-4" /></Link></div>
+        <div className="lg:sticky lg:top-28"><p className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--cc-primary)]"><Sparkles className="size-4" /> Around Bennett</p><h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--cc-heading)] sm:text-4xl">The campus is always making something happen.</h2><p className="mt-4 max-w-md text-sm leading-7 text-[var(--cc-text-muted)]">Find college tech events in India, from hackathons and workshops to coding competitions and campus clubs. A workshop you didn’t know about, a club building its next project, or a question someone can help answer—CampusConnect brings those moments closer together.</p><Link to="/events" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--cc-primary)] hover:underline">See all campus events <ArrowRight className="size-4" /></Link></div>
         <div className="space-y-3">
           {events.length > 0 ? events.map((event, index) => <Link key={event._id || event.slug || index} to={`/events/${event.slug || event._id}`} className="group grid gap-4 rounded-2xl border border-[var(--cc-border)] bg-[var(--cc-surface)] p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--cc-shadow-md)] sm:grid-cols-[4.5rem_1fr_auto] sm:items-center sm:p-5"><span className="flex size-14 flex-col items-center justify-center rounded-xl bg-[var(--cc-primary-soft)] text-[var(--cc-primary)]"><CalendarDays className="size-4" /><span className="mt-1 text-[10px] font-semibold">{formatEventDate(event.date || event.start_date)}</span></span><span className="min-w-0"><span className="block truncate font-semibold text-[var(--cc-heading)]">{event.title}</span><span className="mt-1 block line-clamp-2 text-sm leading-5 text-[var(--cc-text-muted)]">{event.description || event.location || "Discover an upcoming Bennett University event."}</span></span><ArrowUpRight className="hidden size-5 text-[var(--cc-text-soft)] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--cc-primary)] sm:block" /></Link>) : <div className="rounded-2xl border border-dashed border-[var(--cc-border-strong)] p-6 text-sm text-[var(--cc-text-muted)]">Campus events will appear here as they’re published. <Link to="/events" className="font-semibold text-[var(--cc-primary)]">Browse events</Link></div>}
           <Link to="/clubs" className="group flex items-center justify-between gap-4 rounded-2xl bg-[var(--cc-primary)] p-5 text-white sm:p-6"><span><span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/80"><Code2 className="size-4" /> Student communities</span><span className="mt-2 block text-lg font-semibold text-white">Find your corner of campus</span><span className="mt-1 block text-sm text-white/85">{clubs.length ? `${clubs.map((club) => club.short_name || club.name).join(" · ")}${clubs.length === 4 ? " · …" : ""}` : "Explore Bennett’s clubs, interests, and people."}</span></span><span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/35 text-white transition group-hover:bg-white/10"><ArrowRight className="size-4" /></span></Link>
@@ -151,7 +174,7 @@ function CampusVideoHero({ communityHref }) {
   return <section ref={stageRef} className="relative h-[500svh] bg-[#221810]" aria-label="CampusConnect at Bennett University">
     <div className="sticky top-0 h-[100svh] overflow-hidden">
       <div ref={panelRef} className="absolute inset-0 overflow-hidden will-change-transform [backface-visibility:hidden]">
-        <video ref={videoRef} muted playsInline preload="auto" poster="/Bennett_2.webp" aria-label="Campus video scrubbed as you scroll" className="absolute inset-0 size-full object-cover"><source src="/BU_Scroll.mp4" type="video/mp4" /></video>
+        <video ref={videoRef} muted playsInline preload="metadata" poster="/Bennett_2.webp" aria-label="Campus video scrubbed as you scroll" className="absolute inset-0 size-full object-cover"><source src="/BU_Scroll.mp4" type="video/mp4" /></video>
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/15" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/25" />
         <div className="absolute inset-x-0 bottom-0 z-10 h-1 bg-white/20"><div ref={progressRef} className="h-full origin-left scale-x-0 bg-white/90" /></div>

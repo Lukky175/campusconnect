@@ -254,7 +254,7 @@ function BlogEditor({ blog, form, saving, onChange, onClose }) {
           <label className="block"><span className="text-sm font-medium text-[var(--cc-text)]">Status</span><select value={form.status} disabled={saving} onChange={(event) => onChange("status", event.target.value)} className="mt-1.5 w-full rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] bg-[var(--cc-surface)] px-3 py-2.5 text-sm text-[var(--cc-text)]">{STATUSES.map((status) => <option key={status} value={status}>{capitalize(status)}</option>)}</select></label>
         </div>
         <TextArea label="Excerpt" value={form.excerpt} rows={3} disabled={saving} onChange={(value) => onChange("excerpt", value)} help="A short summary shown on the public blog listing." />
-        <TextArea label="Blog content" value={form.content} rows={14} disabled={saving} onChange={(value) => onChange("content", value)} help="Plain text content. Line breaks are preserved on the public page." />
+        <TextArea label="Blog content" value={form.content} rows={14} disabled={saving} onChange={(value) => onChange("content", value)} help="Use ## for section headings, ### for subheadings, - for bullet points, and [link text](https://example.com) for citations. These are rendered as accessible headings, lists and links." />
         <div className="flex justify-end border-t border-[var(--cc-border)] pt-4"><button type="button" onClick={onClose} className="rounded-[var(--cc-radius-md)] border border-[var(--cc-border)] px-4 py-2 text-sm font-medium text-[var(--cc-text)] hover:bg-[var(--cc-surface-subtle)]">Close</button></div>
       </div>
     </section>

@@ -3,6 +3,8 @@ import { Code2, ExternalLink, Search, UsersRound, ArrowUpRight, Sparkles } from 
 import PublicLayout from "../../components/layout/PublicLayout";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import Seo from "../../components/common/Seo";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 export default function ClubsPage({ dashboard = false }) {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -39,6 +41,12 @@ export default function ClubsPage({ dashboard = false }) {
   }), [category, clubs, search]);
 
   return <PageLayout>
+    {!dashboard && <Seo
+      title="University technology clubs at Bennett"
+      description="Explore Bennett University technology clubs and student communities, from AI and robotics to coding and cybersecurity."
+      path="/clubs"
+    />}
+    {!dashboard && <Breadcrumbs items={[{ label: "Home", to: "/" }]} current="Tech clubs" />}
     <section className={dashboard ? "relative overflow-hidden rounded-[1.5rem] bg-[var(--cc-primary)] text-[var(--cc-on-primary)] shadow-[var(--cc-shadow-md)]" : "relative overflow-hidden border-b border-[var(--cc-border)] bg-[var(--cc-surface-subtle)]"}>
       <div className={`pointer-events-none absolute -right-24 -top-32 size-96 rounded-full blur-3xl ${dashboard ? "bg-white/10" : "bg-[var(--cc-primary-soft)]"}`} />
       {dashboard && <><div className="pointer-events-none absolute -right-8 -top-20 size-72 rounded-full border border-white/10" /><div className="pointer-events-none absolute -right-1 -top-12 size-52 rounded-full border border-white/10" /></>}

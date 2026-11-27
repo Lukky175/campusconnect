@@ -70,6 +70,7 @@ jobs:
         run: |
           docker build \
             --build-arg VITE_API_BASE_URL=/api \
+            --build-arg VITE_SITE_URL=https://campusconect.online \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/campusconnect-frontend:${{ steps.image.outputs.tag }} \
             ./frontend
 

@@ -23,6 +23,7 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import Seo from "../common/Seo";
 
 import { useState } from "react";
 
@@ -383,6 +384,13 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-[var(--cc-bg)] md:flex">
+      <Seo
+        title="CampusConnect dashboard"
+        description="Private CampusConnect account and administration pages."
+        path={window.location.pathname}
+        robots="noindex,follow"
+        image={null}
+      />
 
       {/* =================================================
           Desktop sidebar

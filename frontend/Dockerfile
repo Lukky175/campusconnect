@@ -9,7 +9,9 @@ RUN npm install
 COPY . .
 
 ARG VITE_API_BASE_URL=/api
+ARG VITE_SITE_URL=https://campusconect.online
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_SITE_URL=$VITE_SITE_URL
 
 RUN npm run build
 

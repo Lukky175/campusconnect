@@ -30,6 +30,11 @@ class Config:
         "campus_connect",
     )
 
+    SITE_URL = os.getenv(
+        "SITE_URL",
+        "https://campusconect.online",
+    ).rstrip("/")
+
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY",
         "dev-only-change-this-secret",

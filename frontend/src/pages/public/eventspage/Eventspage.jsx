@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 import PublicLayout from "../../../components/layout/PublicLayout";
 import EmptyState from "../../../components/common/EmptyState";
@@ -8,13 +9,41 @@ import { useToast } from "../../../context/ToastContext";
 
 import EventFilters from "./EventFilters";
 import EventCard from "./EventCard";
+import Seo from "../../../components/common/Seo";
+import Breadcrumbs from "../../../components/common/Breadcrumbs";
 
+const pageCopy = {
+  All: {
+    title: "Technical events for college students",
+    heading: "Events worth showing up for.",
+    description: "Browse hackathons, workshops, coding competitions and technology events for university students in India.",
+    path: "/events",
+  },
+  Hackathon: {
+    title: "College hackathons in India",
+    heading: "College hackathons in India",
+    description: "Find student hackathons, check upcoming dates and deadlines, and discover opportunities to build with a team.",
+    path: "/hackathons",
+  },
+  Workshop: {
+    title: "AI workshops for college students",
+    heading: "AI and technology workshops for students",
+    description: "Discover AI, coding and technical workshops for college students, with practical details about dates, format and eligibility.",
+    path: "/workshops",
+  },
+  Competition: {
+    title: "Coding competitions for college students",
+    heading: "Coding competitions for college students",
+    description: "Explore coding and technology competitions for college students, including eligibility, formats and registration details.",
+    path: "/competitions",
+  },
+};
 
-export default function Eventspage() {
+export default function Eventspage({ category = "All" } = {}) {
+  const copy = pageCopy[category] || pageCopy.All;
   const [events, setEvents] = useState([]);
 
-  const [filter, setFilter] =
-    useState("All");
+  const [filter, setFilter] = useState(category);
 
   const [query, setQuery] =
     useState("");
@@ -145,6 +174,24 @@ export default function Eventspage() {
 
   return (
     <PublicLayout>
+      <Seo
+        title={copy.title}
+        description={copy.description}
+        path={copy.path}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: copy.title,
+          description: copy.description,
+          url: "https://campusconect.online" + copy.path,
+        }}
+      />
+      <Breadcrumbs
+        items={category === "All"
+          ? [{ label: "Home", to: "/" }]
+          : [{ label: "Home", to: "/" }, { label: "Events", to: "/events" }]}
+        current={category === "All" ? "Events" : copy.heading}
+      />
 
       {/* =====================================================
           Header
@@ -160,13 +207,11 @@ export default function Eventspage() {
             </p>
 
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--cc-heading)] sm:text-4xl">
-              Events worth showing up for.
+              {copy.heading}
             </h1>
 
             <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--cc-text-muted)] sm:text-base">
-              Explore hackathons, workshops,
-              coding competitions and technology
-              events created for university students.
+              {copy.description}
             </p>
 
           </div>
@@ -187,6 +232,13 @@ export default function Eventspage() {
 
       </section>
 
+
+      <nav className="container-page flex flex-wrap gap-3 pt-7 text-sm" aria-label="Browse event categories">
+        <Link to="/events" className="font-medium text-[var(--cc-primary)] hover:underline">All technology events</Link>
+        <Link to="/hackathons" className="font-medium text-[var(--cc-primary)] hover:underline">College hackathons</Link>
+        <Link to="/workshops" className="font-medium text-[var(--cc-primary)] hover:underline">Student workshops</Link>
+        <Link to="/competitions" className="font-medium text-[var(--cc-primary)] hover:underline">Coding competitions</Link>
+      </nav>
 
       {/* =====================================================
           Events

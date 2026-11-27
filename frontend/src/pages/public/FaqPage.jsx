@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUpRight, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import PublicLayout from "../../components/layout/PublicLayout";
+import Seo from "../../components/common/Seo";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { api } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 
@@ -27,6 +29,12 @@ export default function FaqPage() {
   });
 
   return <PublicLayout mainClassName="pt-0">
+    <Seo
+      title="CampusConnect frequently asked questions"
+      description="Find answers about discovering university technology events, exploring student clubs and using CampusConnect."
+      path="/faq"
+    />
+    <Breadcrumbs items={[{ label: "Home", to: "/" }]} current="FAQ" />
     <section className="relative isolate flex min-h-[62svh] items-end overflow-hidden bg-slate-900 pt-28 sm:min-h-[68svh] sm:pt-36">
       <img src="/Bennett_2.webp" alt="Bennett University campus" className="absolute inset-0 -z-20 size-full object-cover object-center" />
       <div className="absolute inset-0 -z-10 bg-black/55" />
